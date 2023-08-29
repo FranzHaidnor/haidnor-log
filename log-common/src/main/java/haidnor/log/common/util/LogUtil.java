@@ -1,10 +1,15 @@
 package haidnor.log.common.util;
 
+import cn.hutool.core.date.DateUtil;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 日志合并工具
@@ -47,46 +52,36 @@ public class LogUtil {
         }
     }
 
-//    /**
-//     * 多个日志文件交织合并成一个日志文件
-//     *
-//     * @param targetPath 合并后的日志文件生成路径
-//     * @param logPaths   多个日志文件
-//     */
-//    public static void interlacedMargeLogFile(String targetPath, String... logPaths) {
-//        List<Log> logList = new ArrayList<>();
-//        for (String logFilePath : logPaths) {
-//            List<String> logLines;
-//            try {
-//                logLines = IOUtils.readLines(new InputStreamReader(new FileInputStream(logFilePath), StandardCharsets.UTF_8));
-//            } catch (FileNotFoundException exception) {
-//                throw new RuntimeException(exception);
-//            }
-//            Log log = null;
-//            for (String line : logLines) {
-//                // 校验文本内容是否以指定时间格式开头 (2000-01-01 23:23:23.999)
-//                if (Pattern.matches("^((([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))))|((([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00))-02-29))\\s+([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]).([0-9][0-9][0-9]).*$", line)) {
-//                    log = new Log(DateUtil.parse(line.substring(0, 23)).getTime());
-//                    log.addLine(line);
-//                    logList.add(log);
-//                } else {
-//                    if (log != null) {
-//                        log.addLine(line);
-//                    }
-//                }
-//            }
-//        }
-//
-//        // 日志信息对象按时间戳升序排序后归并为一个集合
-//        List<String> logLineList = logList.stream().sorted(Comparator.comparing(Log::getTimestamp)).map(Log::getContent)
-//                .reduce((l1, l2) -> {
-//                    l1.addAll(l2);
-//                    return l1;
-//                }).orElse(new ArrayList<>());
-//        FileUtil.writeLines(logLineList, new File(targetPath), StandardCharsets.UTF_8);
-//
-//        System.out.printf("日志文件合并完成! %s%n", targetPath);
-//    }
+    /**
+     * 多个日志文件交织合并成一个日志文件
+     */
+    public static List<String> margeLog(List<String> logs) {
+        List<Log> logList = new ArrayList<>();
+        for (String content : logs) {
+            String[] logLines = content.split("\n");
+            Log log = null;
+            for (String line : logLines) {
+                // 校验文本内容是否以指定时间格式开头 (2000-01-01 23:23:23.999)
+                if (Pattern.matches("^((([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))))|((([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00))-02-29))\\s+([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]).([0-9][0-9][0-9]).*$", line.substring(18,41))) {
+                    log = new Log(DateUtil.parse(line.substring(18, 41)).getTime());
+                    log.addLine(line);
+                    logList.add(log);
+                } else {
+                    if (log != null) {
+                        log.addLine(line);
+                    }
+                }
+            }
+        }
+
+        // 日志信息对象按时间戳升序排序后归并为一个集合
+        List<String> logLineList = logList.stream().sorted(Comparator.comparing(Log::getTimestamp)).map(Log::getContent)
+                .reduce((l1, l2) -> {
+                    l1.addAll(l2);
+                    return l1;
+                }).orElse(new ArrayList<>());
+        return logLineList;
+    }
 
     private static class Log {
         /**
