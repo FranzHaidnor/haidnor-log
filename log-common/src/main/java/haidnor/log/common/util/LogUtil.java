@@ -17,10 +17,11 @@ public class LogUtil {
      * 读取文本文件的倒数多少行内容
      *
      * @param filePath 文件路径
-     * @param rows     需要读取的行数. 小于 0 则为全部内容
+     * @param rows     需要读取的行数. 0 则为全部内容
      * @author wang xiang
      */
     public static String readLastRows(String filePath, long rows) {
+        rows = rows - 1;
         try (RandomAccessFile accessFile = new RandomAccessFile(filePath, "r")) {
             // 每次读取的字节数要和系统换行符大小一致
             byte[] charBytes = new byte[1];
