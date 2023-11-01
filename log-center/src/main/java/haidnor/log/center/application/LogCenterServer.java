@@ -1,13 +1,12 @@
-package haidnor.log.center.core;
+package haidnor.log.center.application;
 
-import haidnor.log.center.config.LogCenterConfig;
+import haidnor.log.center.config.Configuration;
+import haidnor.log.center.netty.ChannelConnectionEventListener;
+import haidnor.log.center.service.ServerNodeManager;
+import haidnor.log.center.netty.processor.HeartbeatService;
 import haidnor.log.common.command.LogCenterCommand;
 import haidnor.remoting.core.NettyRemotingServer;
-import haidnor.remoting.core.NettyRequestProcessor;
 import haidnor.remoting.core.NettyServerConfig;
-import haidnor.remoting.protocol.RemotingCommand;
-import haidnor.remoting.protocol.RemotingSysResponseCode;
-import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +19,7 @@ public class LogCenterServer {
     private NettyRemotingServer server;
 
     @Autowired
-    private LogCenterConfig config;
+    private Configuration config;
 
     @Autowired
     private ChannelConnectionEventListener channelConnectionEventListener;
@@ -40,13 +39,7 @@ public class LogCenterServer {
         /* ------------------------------------------------------------------------------------------------------------ */
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
-        server.registerProcessor(LogCenterCommand.HEARTBEAT, new NettyRequestProcessor() {
-            @Override
-            public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) {
-                serverNodeManager.register(ctx.channel());
-                return RemotingCommand.createResponse(RemotingSysResponseCode.SUCCESS, "OK");
-            }
-        }, executorService);
+        server.registerProcessor(LogCenterCommand.HEARTBEAT, new HeartbeatService(serverNodeManager), executorService);
 
         server.start();
     }

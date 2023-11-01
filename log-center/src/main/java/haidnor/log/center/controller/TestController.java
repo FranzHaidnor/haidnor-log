@@ -1,14 +1,14 @@
 package haidnor.log.center.controller;
 
 import cn.hutool.core.text.StrBuilder;
-import haidnor.log.center.core.LogCenterServer;
-import haidnor.log.center.core.ServerNodeConfig;
-import haidnor.log.center.core.ServerNodeManager;
-import haidnor.log.common.model.LogLine;
+import haidnor.log.center.application.LogCenterServer;
+import haidnor.log.center.application.ServerNodeConfig;
+import haidnor.log.center.service.ServerNodeManager;
 import haidnor.log.center.model.ServerNodeLog;
 import haidnor.log.center.model.param.GetLogRequestParam;
 import haidnor.log.common.command.LogCenterCommand;
 import haidnor.log.common.model.GetLogRequest;
+import haidnor.log.common.model.LogLine;
 import haidnor.log.common.util.Jackson;
 import haidnor.log.common.util.LogUtil;
 import haidnor.remoting.core.NettyRemotingServer;
@@ -60,7 +60,7 @@ public class TestController {
                 getLogRequest.setDay(param.getDay());
                 getLogRequest.setPath(serverNodeLog.getPath());
                 getLogRequest.setRows(param.getRows());
-                getLogRequest.setFileName(param.getLevel());
+                getLogRequest.setFileName(param.getFileName());
                 RemotingCommand request = RemotingCommand.creatRequest(LogCenterCommand.GET_LOG, Jackson.toJsonBytes(getLogRequest));
                 // 同步请求
                 RemotingCommand response = nettyServer.invokeSync(channel, request);
@@ -73,7 +73,7 @@ public class TestController {
                 List<LogLine> result = new ArrayList<>();
                 String[] logLines = content.split("\n");
 
-                String ipStr = ipV4Alignment(ip);
+                String ipStr = ipv4Format(ip);
                 for (String logLine : logLines) {
                     result.add(new LogLine(logLine, ipStr));
                 }
@@ -82,10 +82,12 @@ public class TestController {
             futureList.add(future);
         }
 
-        log.error("节点异常信息 {}", errorContext);
-
         // 合并多个节点的日志信息
         CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
+
+        if (!errorContext.isEmpty()) {
+            log.error("节点异常信息 {}", errorContext);
+        }
 
         // 所有的日志行信息
         List<LogLine> logLineList = new ArrayList<>();
@@ -100,8 +102,10 @@ public class TestController {
         return String.join("\n", log);
     }
 
-    // ip 对其
-    private String ipV4Alignment(String ipV4) {
+    /**
+     * ip v4 地址格式化, 补全 15 位字符串
+     */
+    private String ipv4Format(String ipV4) {
         String ip = ipV4;
         if (ipV4.length() < 15) {
             int n = 15 - ipV4.length();

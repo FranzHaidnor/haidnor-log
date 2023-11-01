@@ -1,4 +1,4 @@
-package haidnor.log.center.core;
+package haidnor.log.center.application;
 
 import haidnor.log.center.LogCenterApplication;
 import haidnor.log.center.model.ServerNodeLog;

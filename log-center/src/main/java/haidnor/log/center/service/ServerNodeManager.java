@@ -1,4 +1,4 @@
-package haidnor.log.center.core;
+package haidnor.log.center.service;
 
 import haidnor.remoting.util.RemotingHelper;
 import io.netty.channel.Channel;

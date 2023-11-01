@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Data
-public class LogCenterConfig {
+public class Configuration {
 
     @Value("${haidnor.log.center.port}")
     private Integer port;

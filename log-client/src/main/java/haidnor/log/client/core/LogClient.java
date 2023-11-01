@@ -1,23 +1,19 @@
 package haidnor.log.client.core;
 
 import haidnor.log.client.config.LogCenterConfig;
+import haidnor.log.client.processor.GetLogService;
 import haidnor.log.common.command.LogCenterCommand;
-import haidnor.log.common.model.GetLogRequest;
-import haidnor.log.common.util.Jackson;
-import haidnor.log.common.util.LogUtil;
 import haidnor.remoting.ChannelEventListener;
 import haidnor.remoting.RemotingClient;
 import haidnor.remoting.core.NettyClientConfig;
 import haidnor.remoting.core.NettyRemotingClient;
 import haidnor.remoting.protocol.RemotingCommand;
-import haidnor.remoting.protocol.RemotingSysResponseCode;
 import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -52,15 +48,7 @@ public class LogClient {
         });
 
         // 服务器请求读取日志内容
-        client.registerProcessor(LogCenterCommand.GET_LOG, (channelHandlerContext, remotingCommand) -> {
-            GetLogRequest request = Jackson.toBean(remotingCommand.getBody(), GetLogRequest.class);
-            try {
-                String log = LogUtil.readLastRows(request.getPath() + "/" + request.getDay() + "/" + request.getFileName(), request.getRows());
-                return RemotingCommand.createResponse(RemotingSysResponseCode.SUCCESS, log.getBytes(StandardCharsets.UTF_8));
-            } catch (Exception exception) {
-                return RemotingCommand.createResponse(RemotingSysResponseCode.SYSTEM_ERROR, exception.getMessage());
-            }
-        }, executorService);
+        client.registerProcessor(LogCenterCommand.GET_LOG, new GetLogService(), executorService);
 
         // 向日志中心注册
         registerCenter(client);

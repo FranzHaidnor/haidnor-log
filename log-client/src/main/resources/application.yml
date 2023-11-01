@@ -1,4 +1,4 @@
 haidnor:
   log:
     center:
-      address: 192.168.21.123:8085
+      address: 192.168.100.1:8085

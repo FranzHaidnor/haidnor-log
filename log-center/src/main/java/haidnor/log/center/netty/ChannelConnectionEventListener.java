@@ -1,5 +1,6 @@
-package haidnor.log.center.core;
+package haidnor.log.center.netty;
 
+import haidnor.log.center.service.ServerNodeManager;
 import haidnor.remoting.ChannelEventListener;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;

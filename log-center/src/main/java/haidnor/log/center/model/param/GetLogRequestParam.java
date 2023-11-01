@@ -4,9 +4,6 @@ import lombok.Data;
 
 import java.util.HashSet;
 
-/**
- *
- */
 @Data
 public class GetLogRequestParam {
     /**
@@ -22,9 +19,9 @@ public class GetLogRequestParam {
      */
     private String day;
     /**
-     * 日志输出级别
+     * 日志文件名称
      */
-    private String level;
+    private String fileName;
     /**
      * 每一个服务节点查看的日志行数
      */

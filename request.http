@@ -4,9 +4,9 @@ Content-Type: application/json
 
 {
   "day": "2023-08-28",
-  "ips": ["192.168.21.123"],
-  "level": "error-log.log",
-  "rows": 5000,
+  "ips": ["192.168.100.111","192.168.100.110"],
+  "fileName": "error-log.log",
+  "rows": 0,
   "server": "VIP",
-  "showIp": true
+  "showIp": false
 }

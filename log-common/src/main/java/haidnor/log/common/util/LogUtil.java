@@ -2,6 +2,7 @@ package haidnor.log.common.util;
 
 import cn.hutool.core.date.DateUtil;
 import haidnor.log.common.model.LogLine;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -82,14 +83,14 @@ public class LogUtil {
         }
 
         // 日志信息对象按时间戳升序排序后归并为一个集合
-        List<String> logLineList = logList.stream().sorted(Comparator.comparing(Log::getTimestamp)).map(Log::getContent)
+        return logList.stream().sorted(Comparator.comparing(Log::getTimestamp)).map(Log::getContent)
                 .reduce((l1, l2) -> {
                     l1.addAll(l2);
                     return l1;
                 }).orElse(new ArrayList<>());
-        return logLineList;
     }
 
+    @Getter
     private static class Log {
         /**
          * 日志内容的时间戳
@@ -102,14 +103,6 @@ public class LogUtil {
 
         public Log(Long timestamp) {
             this.timestamp = timestamp;
-        }
-
-        public Long getTimestamp() {
-            return timestamp;
-        }
-
-        public List<String> getContent() {
-            return content;
         }
 
         public void addLine(String line) {
