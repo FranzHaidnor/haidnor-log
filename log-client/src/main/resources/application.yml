@@ -1,0 +1,4 @@
+haidnor:
+  log:
+    center:
+      address: 192.168.21.123:8085

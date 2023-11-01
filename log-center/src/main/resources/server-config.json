@@ -1,0 +1,12 @@
+[
+  {
+    "ip": "192.168.100.110",
+    "server": "VIP",
+    "path": "D:/log/vip"
+  },
+  {
+    "ip": "192.168.21.123",
+    "server": "VIP",
+    "path": "D:/log/vip"
+  }
+]
