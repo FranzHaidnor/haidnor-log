@@ -1,6 +1,6 @@
 package haidnor.log.center.service;
 
-import haidnor.log.center.application.ServerNodeConfig;
+import haidnor.log.center.config.ServerNodeConfig;
 import org.springframework.stereotype.Service;
 
 @Service

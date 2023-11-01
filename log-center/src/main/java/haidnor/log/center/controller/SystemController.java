@@ -1,6 +1,6 @@
 package haidnor.log.center.controller;
 
-import haidnor.log.center.application.ServerNodeConfig;
+import haidnor.log.center.config.ServerNodeConfig;
 import haidnor.log.center.service.ServerNodeConfigService;
 import haidnor.log.center.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
