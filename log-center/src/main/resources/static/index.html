@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>haidnor-log</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.common.dev.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/common.css">
+</head>
+
+<body>
+<div id="root">
+    <div>
+        <p>
+            当前监控 <span id="projectName"></span><br>
+            监控状态 <span id="monitorState"></span>
+        </p>
+        <p>
+            服务
+            <el-select v-model="server" @change="getNodeIp" style="width: 150px">
+                <el-option v-for="serverName in serverList" :value="serverName">{{ serverName }}</el-option>
+            </el-select>
+
+            节点IP
+            <el-select v-model="ips" multiple collapse-tags @change="getLogFolder" style="width: 250px">
+                <el-option v-for="ip in ipList" :value="ip">{{ ip }}</el-option>
+            </el-select>
+
+            日期
+            <el-select v-model="day" style="width: 130px">
+                <el-option v-for="d in dayList" :value="d">{{ d }}</el-option>
+            </el-select>
+
+            日志级别
+            <el-select v-model="fileName" style="width: 150px">
+                <el-option value="error-log.log">ERROR</el-option>
+                <el-option value="warn-log.log">WARN</el-option>
+                <el-option value="info-log.log">INFO</el-option>
+                <el-option value="debug-log.log">DEBUG</el-option>
+            </el-select>
+
+            单节点行数:
+            <el-select v-model="rows" style="width: 80px">
+                <el-option value="500">500</el-option>
+                <el-option value="1000">1000</el-option>
+                <el-option value="1500">1500</el-option>
+                <el-option value="0">MAX</el-option>
+            </el-select>
+
+            显示IP前缀
+            <el-select v-model="showIp" style="width: 80px">
+                <el-option value="false">否</el-option>
+                <el-option value="true">是</el-option>
+            </el-select>
+        </p>
+        <!--        <p>-->
+        <!--            <el-button @click="btn_cat" type="primary">查看</el-button>-->
+        <!--            <el-button @click="btn_stop" type="danger">停止</el-button>-->
+        <!--            <el-button @click="btn_download" type="success">下载</el-button>-->
+        <!--        </p>-->
+    </div>
+</div>
+<div>
+    <textarea style="width: 1500px;height:800px;" id="log_textarea"></textarea>
+</div>
+<div>
+    <p>haidnor-log (分布式节点日志合并查看下载工具)</p>
+    <a href="https://github.com/FranzHaidnor/haidnor-log">https://github.com/FranzHaidnor/haidnor-log</a>
+</div>
+
+</body>
+
+<script type="text/javascript">
+    Vue.config.productionTip = false
+    new Vue({
+        el: '#root',
+        data: {
+            server: null,
+            serverList: [],
+            ips: null,
+            ipList: [],
+            day: null,
+            dayList: [],
+            fileName: "error-log.log",
+            rows: 500,
+            showIp: false
+        },
+        methods: {
+            // 获取服务列表. 渲染下拉框服务信息
+            getServerList() {
+                axios.post("http://192.168.21.123:8080/system/getServerList").then(res => {
+                    this.serverList = res.data.data;
+                })
+            },
+            // 选择服务后调用接口,获取所有的节点 IP
+            getNodeIp() {
+                this.ip = null;
+                this.ipList = [];
+                this.day = null;
+                this.dayList = [];
+
+                const params = new URLSearchParams();
+                params.append('serverName', this.server);
+                axios.post("http://192.168.21.123:8080/system/getNodeIp", params)
+                    .then(res => {
+                        this.ipList = res.data.data;
+                        this.ips = res.data.data;
+
+                        // 渲染完 IP 节点下拉框后,请求目录信息
+                        this.getLogFolder();
+                    })
+            },
+            // 选择节点 ip 后,获取日志目录信息
+            getLogFolder() {
+                this.day = null;
+                this.dayList = [];
+                axios.post('http://192.168.21.123:8080/logClient/getLogFolder', {
+                    "ips": this.ips,
+                    "server": this.server
+                },).then(res => {
+                    this.dayList = res.data.data;
+                })
+            }
+        },
+        created() {
+            this.getServerList();
+        }
+    })
+</script>
+
+</html>

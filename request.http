@@ -1,4 +1,4 @@
-###
+### 获取日志文本内容
 POST http://localhost:8080/test/getLog
 Content-Type: application/json
 
@@ -11,7 +11,7 @@ Content-Type: application/json
   "showIp": true
 }
 
-###
+### 获取日志文件夹
 POST http://localhost:8080/logClient/getLogFolder
 Content-Type: application/json
 

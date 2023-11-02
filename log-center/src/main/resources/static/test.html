@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>haidnor-log</title>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/common.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/common.css">
+</head>
+
+<body>
+<div>
+    <p>
+        当前监控 <span id="projectName"></span><br>
+        监控状态 <span id="monitorState"></span>
+    </p>
+    <p>
+        服务
+        <select id="server"></select>
+
+        节点
+        <select id="ips"></select>
+
+        日期
+        <select id="day"></select>
+
+        日志级别
+        <select id="fileName">
+            <option value="error-log.log">ERROR</option>
+            <option value="warn-log.log">WARN</option>
+            <option value="info-log.log">INFO</option>
+            <option value="debug-log.log">DEBUG</option>
+        </select>
+
+        单节点日志行数:
+        <select id="rows">
+            <option value="500">500</option>
+            <option value="1000">1000</option>
+            <option value="1500">1500</option>
+            <option value="0">max</option>
+        </select>
+
+        节点IP前缀
+        <select id="showIp">
+            <option value="false">否</option>
+            <option value="true">是</option>
+        </select>
+
+        <button id="btn_cat">查看</button>
+        <button id="btn_stop">停止</button>
+        <button id="btn_download">下载日志</button>
+    </p>
+</div>
+<div>
+    <textarea style="width: 1500px;height:800px;" id="log_textarea"></textarea>
+</div>
+<div>
+    <p>haidnor-log (分布式节点日志合并查看下载工具)</p>
+    <a href="https://github.com/FranzHaidnor/haidnor-log">https://github.com/FranzHaidnor/haidnor-log</a>
+</div>
+</body>
+
+<script>
+    // 请求配置的所有项目
+    $.ajax({
+        async: false,
+        dataType: "json",
+        success: function (response) {
+            console.log(response.data);
+            let data = response.data;
+            for (let i = 0; i < data.length; i++) {
+                let serverName = data[i];
+                $("#server").append("<option value='" + serverName + "'>" + serverName + "</option>");
+            }
+        },
+        type: "POST",
+        url: getRootPath() + "/system/getServerList"
+    });
+
+    let seleteTrId = "";
+
+    function catLog(id, name) {
+        // 设置表单背景颜色
+        $(seleteTrId).css("background-color", "rgb(255, 255, 255)");
+        seleteTrId = "#tr_id_" + id;
+        $(seleteTrId).css("background-color", "rgb(243, 74, 7)");
+
+        // 删除选择列表
+        $("#logDate option").remove();
+
+        // 设置日志
+        $("#projecName").html(name);
+
+        // 查询日志日期
+        $.ajax({
+            url: getRootPath() + "/project/getLogDate",
+            type: "get",
+            dataType: "json",
+            async: false,
+            data: {
+                id: id
+            },
+            success: function (response) {
+                let data = response.data;
+                for (let i = 0; i < data.length; i++) {
+                    let log = data[i];
+                    $("#logDate").append(
+                        "<option value=\"" + log + "\">" + log.substr(log.length - 10, log.length - 1) + "</option>"
+                    );
+                }
+                getLogFile(data[0]);
+            }
+        });
+    }
+
+    /**
+     * 获取指定日期下的日志文件,并渲染到选择框
+     */
+    function getLogFile(logDatePath) {
+        $("#log option").remove();
+
+        $.ajax({
+            url: getRootPath() + "/project/getLogFile",
+            type: "get",
+            dataType: "json",
+            async: false,
+            data: {
+                path: logDatePath
+            },
+            success: function (response) {
+                let data = response.data;
+                for (let i = 0; i < data.length; i++) {
+                    let log = data[i];
+                    $("#log").append(
+                        "<option value=\"" + log + "\">" + log + "</option>"
+                    );
+                }
+            }
+        });
+    }
+
+    /**
+     * 联动查询,更新日志目录选择框
+     */
+    $("#logDate").change(function (e) {
+        let date = $('#logDate').val();
+        getLogFile(date);
+    });
+
+    /**
+     * 点击下载日志
+     */
+    $("#btn_downloadLog").click(function (e) {
+        if ($('#logDate').val() == null || $('#logDate').val() == "") {
+            return;
+        }
+        let path = $('#logDate').val() + "/" + $('#log').val();
+        path = path.replace(RegExp("/", "g"), "%2F");
+        window.open(getRootPath() + "/project/downloadLog?logPath=" + path);
+    });
+
+
+    let wsSessionId;
+    let webSocket;
+    webSocket = new WebSocket(getWSRootPath());
+    webSocket.onmessage = function (event) {
+        $("#project_log").html(event.data);
+    };
+
+    /**
+     * 查看日志
+     */
+    $("#btn_catLog").click(function (e) {
+        if ($('#logDate').val() == null || $('#logDate').val() == "") {
+            return;
+        }
+        let data = new Object();
+        data.logPath = $('#logDate').val() + "/" + $('#log').val();
+        data.lineNum = $('#lineNum').val();
+        data.interval = $('#interval').val()
+        data.status = true;
+        webSocket.send(JSON.stringify(data));
+        $("#monitorState").html("监控中").css("color", "rgb(0, 255, 0)");
+    });
+
+    /**
+     * 更新参数
+     */
+    $("#btn_updateLogParam").click(function (e) {
+        if ($('#logDate').val() == null || $('#logDate').val() == "") {
+            return;
+        }
+        let data = new Object();
+        data.logPath = $('#logDate').val() + "/" + $('#log').val();
+        data.lineNum = $('#lineNum').val();
+        data.interval = $('#interval').val()
+        data.status = true;
+        webSocket.send(JSON.stringify(data));
+        $("#monitorState").html("监控中").css("color", "rgb(0, 255, 0)");
+    });
+
+    /**
+     * 停止查看日志
+     */
+    $("#btn_stopLogTimer").click(function (e) {
+        if ($('#logDate').val() == null || $('#logDate').val() == "") {
+            return;
+        }
+        let data = new Object();
+        data.logPath = $('#logDate').val() + "/" + $('#log').val();
+        data.lineNum = $('#lineNum').val();
+        data.interval = $('#interval').val()
+        data.status = false;
+        if (data.logPath == null || data.logPath == "" || data.lineNum == null || data.interval == null) {
+            return;
+        }
+        webSocket.send(JSON.stringify(data));
+        $("#monitorState").html("已停止").css("color", "rgb(255, 0, 0)");
+    });
+
+</script>
+
+</html>
