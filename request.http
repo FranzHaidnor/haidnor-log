@@ -8,5 +8,5 @@ Content-Type: application/json
   "fileName": "error-log.log",
   "rows": 0,
   "server": "VIP",
-  "showIp": false
+  "showIp": true
 }

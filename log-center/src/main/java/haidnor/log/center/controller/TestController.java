@@ -1,7 +1,7 @@
 package haidnor.log.center.controller;
 
 import cn.hutool.core.text.StrBuilder;
-import haidnor.log.center.application.LogCenterServer;
+import haidnor.log.center.app.LogCenterServer;
 import haidnor.log.center.config.ServerNodeConfig;
 import haidnor.log.center.service.ServerNodeManager;
 import haidnor.log.center.model.ServerNodeLog;

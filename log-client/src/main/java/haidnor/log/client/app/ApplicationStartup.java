@@ -1,4 +1,4 @@
-package haidnor.log.client.application;
+package haidnor.log.client.app;
 
 import haidnor.log.client.core.LogClient;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-public class RpcServerStartup implements ApplicationRunner {
+public class ApplicationStartup implements ApplicationRunner {
 
     @Autowired
     private LogClient logClient;

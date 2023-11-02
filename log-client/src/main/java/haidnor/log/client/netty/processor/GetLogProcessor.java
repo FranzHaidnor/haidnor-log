@@ -1,4 +1,4 @@
-package haidnor.log.client.processor;
+package haidnor.log.client.netty.processor;
 
 import haidnor.log.common.model.GetLogRequest;
 import haidnor.log.common.util.Jackson;
@@ -10,7 +10,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.nio.charset.StandardCharsets;
 
-public class GetLogService implements NettyRequestProcessor {
+public class GetLogProcessor implements NettyRequestProcessor {
 
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand remotingCommand) {

@@ -1,4 +1,4 @@
-package haidnor.log.center.netty;
+package haidnor.log.center.netty.listener;
 
 import haidnor.log.center.service.ServerNodeManager;
 import haidnor.remoting.ChannelEventListener;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ChannelConnectionEventListener implements ChannelEventListener {
+public class DefaultChannelEventListener implements ChannelEventListener {
 
     @Autowired
     private ServerNodeManager serverNodeManager;

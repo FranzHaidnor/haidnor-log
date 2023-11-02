@@ -1,4 +1,4 @@
-package haidnor.log.center.application;
+package haidnor.log.center.app;
 
 import haidnor.log.center.config.ServerNodeConfig;
 import lombok.extern.slf4j.Slf4j;

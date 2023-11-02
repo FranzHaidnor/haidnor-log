@@ -6,11 +6,11 @@ import haidnor.remoting.protocol.RemotingCommand;
 import haidnor.remoting.protocol.RemotingSysResponseCode;
 import io.netty.channel.ChannelHandlerContext;
 
-public class HeartbeatService implements NettyRequestProcessor {
+public class HeartbeatProcessor implements NettyRequestProcessor {
 
     private final ServerNodeManager serverNodeManager;
 
-    public HeartbeatService(ServerNodeManager serverNodeManager) {
+    public HeartbeatProcessor(ServerNodeManager serverNodeManager) {
         this.serverNodeManager = serverNodeManager;
     }
 

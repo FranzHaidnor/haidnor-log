@@ -1,9 +1,9 @@
-package haidnor.log.center.application;
+package haidnor.log.center.app;
 
 import haidnor.log.center.config.Configuration;
-import haidnor.log.center.netty.ChannelConnectionEventListener;
+import haidnor.log.center.netty.listener.DefaultChannelEventListener;
 import haidnor.log.center.service.ServerNodeManager;
-import haidnor.log.center.netty.processor.HeartbeatService;
+import haidnor.log.center.netty.processor.HeartbeatProcessor;
 import haidnor.log.common.command.LogCenterCommand;
 import haidnor.remoting.core.NettyRemotingServer;
 import haidnor.remoting.core.NettyServerConfig;
@@ -22,7 +22,7 @@ public class LogCenterServer {
     private Configuration config;
 
     @Autowired
-    private ChannelConnectionEventListener channelConnectionEventListener;
+    private DefaultChannelEventListener defaultChannelEventListener;
 
     @Autowired
     private ServerNodeManager serverNodeManager;
@@ -35,11 +35,11 @@ public class LogCenterServer {
         server = new NettyRemotingServer(nettyConfig, LogCenterCommand.class);
 
         /* ------------------------------------------------------------------------------------------------------------ */
-        server.registerChannelEventListener(channelConnectionEventListener);
+        server.registerChannelEventListener(defaultChannelEventListener);
         /* ------------------------------------------------------------------------------------------------------------ */
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
-        server.registerProcessor(LogCenterCommand.HEARTBEAT, new HeartbeatService(serverNodeManager), executorService);
+        server.registerProcessor(LogCenterCommand.HEARTBEAT, new HeartbeatProcessor(serverNodeManager), executorService);
 
         server.start();
     }
