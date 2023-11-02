@@ -1,23 +1,8 @@
 [
   {
-    "ip": "192.168.100.1",
-    "server": "BUSINESS_VIP",
-    "path": "D:/log/vip"
-  },
-  {
-    "ip": "192.168.100.1",
-    "server": "BUSINESS_OA",
-    "path": "D:/log/oa"
-  },
-  {
     "ip": "192.168.100.110",
     "server": "BUSINESS_VIP",
     "path": "D:/log/vip"
-  },
-  {
-    "ip": "192.168.100.110",
-    "server": "BUSINESS_OA",
-    "path": "D:/log/oa"
   },
   {
     "ip": "192.168.100.111",

@@ -15,10 +15,10 @@
 <body>
 <div id="root">
     <div>
-        <p>
-            当前监控 <span id="projectName"></span><br>
-            监控状态 <span id="monitorState"></span>
-        </p>
+<!--        <p>-->
+<!--            当前监控 <span id="projectName"></span><br>-->
+<!--            监控状态 <span id="monitorState"></span>-->
+<!--        </p>-->
         <p>
             服务
             <el-select v-model="server" @change="getNodeIp" style="width: 150px">
@@ -57,15 +57,15 @@
                 <el-option value="true">是</el-option>
             </el-select>
         </p>
-        <!--        <p>-->
-        <!--            <el-button @click="btn_cat" type="primary">查看</el-button>-->
-        <!--            <el-button @click="btn_stop" type="danger">停止</el-button>-->
-        <!--            <el-button @click="btn_download" type="success">下载</el-button>-->
-        <!--        </p>-->
+        <p>
+            <el-button @click="btn_cat" type="primary">查看</el-button>
+            <el-button @click="btn_stop" type="danger">停止</el-button>
+            <el-button @click="btn_download" type="success">下载</el-button>
+        </p>
     </div>
-</div>
-<div>
-    <textarea style="width: 1500px;height:800px;" id="log_textarea"></textarea>
+    <div>
+        <textarea v-model="log" style="width: 1700px;height:1000px;" id="log_textarea" wrap="off"></textarea>
+    </div>
 </div>
 <div>
     <p>haidnor-log (分布式节点日志合并查看下载工具)</p>
@@ -87,7 +87,9 @@
             dayList: [],
             fileName: "error-log.log",
             rows: 500,
-            showIp: false
+            showIp: false,
+            socket: null,
+            log: null
         },
         methods: {
             // 获取服务列表. 渲染下拉框服务信息
@@ -124,10 +126,35 @@
                 },).then(res => {
                     this.dayList = res.data.data;
                 })
+            },
+            // 查看日志
+            btn_cat() {
+                console.log("-------------------------------------------");
+                let data = {};
+                data.ips = this.ips;
+                data.server = this.server;
+                data.day = this.day;
+                data.fileName = this.fileName;
+                data.rows = this.rows;
+                data.showIp = this.showIp;
+                data.status = true;
+                this.socket.send(JSON.stringify(data));
+            },
+            // 停止查看
+            btn_stop() {
+            },
+            // 下载日志
+            btn_download() {
             }
         },
         created() {
             this.getServerList();
+
+            let _this = this;
+            this.socket = new WebSocket("ws://192.168.21.123:8080/webSocket");
+            this.socket.onmessage = function (event) {
+                _this.log = event.data;
+            };
         }
     })
 </script>

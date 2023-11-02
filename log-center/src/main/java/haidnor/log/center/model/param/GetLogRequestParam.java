@@ -30,4 +30,7 @@ public class GetLogRequestParam {
      * 是否输出 ip 节点前缀信息
      */
     private boolean showIp;
+
+    // 查看状态
+    private boolean status = false;
 }
