@@ -1,10 +1,11 @@
 package haidnor.log.center.websocket;
 
 import cn.hutool.extra.spring.SpringUtil;
+import haidnor.log.center.config.Configuration;
 import haidnor.log.center.model.param.GetLogRequestParam;
 import haidnor.log.center.service.LogClientService;
 import haidnor.log.center.util.Jackson;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.websocket.*;
@@ -17,21 +18,19 @@ import java.util.concurrent.TimeUnit;
  */
 @ServerEndpoint("/webSocket")
 @Service
+@Slf4j
 public class WebsocketServer {
 
-    private LogClientService logClientService = SpringUtil.getBean(LogClientService.class);
+    private final LogClientService clientService = SpringUtil.getBean(LogClientService.class);
 
-    private GetLogRequestParam param = new GetLogRequestParam();
+    private final Configuration config = SpringUtil.getBean(Configuration.class);
+
+    private GetLogRequestParam param = null;
 
     private boolean status = false;
-    /**
-     * webSocket 会话
-     */
+
     Session session;
 
-    /**
-     * 建立连接成功调用,返回客户端 session id
-     */
     @OnOpen
     public void onOpen(Session session) throws IOException {
         this.session = session;
@@ -39,18 +38,18 @@ public class WebsocketServer {
         new Thread(() -> {
             while (this.session != null) {
                 try {
-                    TimeUnit.MILLISECONDS.sleep(3 * 1000);  // 默认 3 秒查询一次
+                    TimeUnit.MILLISECONDS.sleep(config.getLogPushInterval() * 1000);
                 } catch (InterruptedException e) {
+                    log.error("", e);
                 }
                 if (status) {
                     try {
                         if (this.session != null) {
-                            // 查询日志
-                            String log = logClientService.getLog(param);
+                            String log = clientService.getLog(param);
                             session.getBasicRemote().sendText(log);
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("", e);
                     }
                 }
             }
@@ -66,8 +65,10 @@ public class WebsocketServer {
     public void onMessage(Session session, String message) throws IOException {
         this.param = Jackson.toBean(message, GetLogRequestParam.class);
         this.status = param.isStatus();
-        String log = logClientService.getLog(param);
-        session.getBasicRemote().sendText(log);
+        if (status) {
+            String log = clientService.getLog(param);
+            session.getBasicRemote().sendText(log);
+        }
     }
 
     @OnError

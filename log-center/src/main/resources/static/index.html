@@ -15,10 +15,10 @@
 <body>
 <div id="root">
     <div>
-<!--        <p>-->
-<!--            当前监控 <span id="projectName"></span><br>-->
-<!--            监控状态 <span id="monitorState"></span>-->
-<!--        </p>-->
+        <!--        <p>-->
+        <!--            当前监控 <span id="projectName"></span><br>-->
+        <!--            监控状态 <span id="monitorState"></span>-->
+        <!--        </p>-->
         <p>
             服务
             <el-select v-model="server" @change="getNodeIp" style="width: 150px">
@@ -37,24 +37,24 @@
 
             日志级别
             <el-select v-model="fileName" style="width: 150px">
-                <el-option value="error-log.log">ERROR</el-option>
-                <el-option value="warn-log.log">WARN</el-option>
-                <el-option value="info-log.log">INFO</el-option>
-                <el-option value="debug-log.log">DEBUG</el-option>
+                <el-option value="error-log.log" label="ERROR"></el-option>
+                <el-option value="warn-log.log" label="WARN"></el-option>
+                <el-option value="info-log.log" label="INFO"></el-option>
+                <el-option value="debug-log.log" label="DEBUG"></el-option>
             </el-select>
 
             单节点行数:
             <el-select v-model="rows" style="width: 80px">
-                <el-option value="500">500</el-option>
-                <el-option value="1000">1000</el-option>
-                <el-option value="1500">1500</el-option>
-                <el-option value="0">MAX</el-option>
+                <el-option value="500" label="500"></el-option>
+                <el-option value="1000" label="1000"></el-option>
+                <el-option value="1500" label="1500"></el-option>
+                <el-option value="0" label="MAX"></el-option>
             </el-select>
 
             显示IP前缀
             <el-select v-model="showIp" style="width: 80px">
-                <el-option value="false">否</el-option>
-                <el-option value="true">是</el-option>
+                <el-option value="false" label="否"></el-option>
+                <el-option value="true" label="是"></el-option>
             </el-select>
         </p>
         <p>
@@ -87,14 +87,14 @@
             dayList: [],
             fileName: "error-log.log",
             rows: 500,
-            showIp: false,
+            showIp: null,
             socket: null,
             log: null
         },
         methods: {
             // 获取服务列表. 渲染下拉框服务信息
             getServerList() {
-                axios.post("http://192.168.21.123:8080/system/getServerList").then(res => {
+                axios.post("/system/getServerList").then(res => {
                     this.serverList = res.data.data;
                 })
             },
@@ -107,7 +107,7 @@
 
                 const params = new URLSearchParams();
                 params.append('serverName', this.server);
-                axios.post("http://192.168.21.123:8080/system/getNodeIp", params)
+                axios.post("/system/getNodeIp", params)
                     .then(res => {
                         this.ipList = res.data.data;
                         this.ips = res.data.data;
@@ -120,7 +120,7 @@
             getLogFolder() {
                 this.day = null;
                 this.dayList = [];
-                axios.post('http://192.168.21.123:8080/logClient/getLogFolder', {
+                axios.post('/logClient/getLogFolder', {
                     "ips": this.ips,
                     "server": this.server
                 },).then(res => {
@@ -129,7 +129,6 @@
             },
             // 查看日志
             btn_cat() {
-                console.log("-------------------------------------------");
                 let data = {};
                 data.ips = this.ips;
                 data.server = this.server;
@@ -142,16 +141,43 @@
             },
             // 停止查看
             btn_stop() {
+                let data = {};
+                data.status = false;
+                this.socket.send(JSON.stringify(data));
             },
             // 下载日志
             btn_download() {
+                let data = {};
+                data.ips = this.ips;
+                data.server = this.server;
+                data.day = this.day;
+                data.fileName = this.fileName;
+                data.rows = this.rows;
+                data.showIp = this.showIp;
+
+                axios.post("/logClient/download", data, {
+                    headers: {
+                        'Content-Type': 'application/json' // 设置请求头为JSON格式
+                    }
+                })
+                .then(response => {
+                    const blob = new Blob([response.data]);
+                    const filename = response.headers['content-disposition'].split('=')[1]; // 从响应头中获取文件名
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = decodeURIComponent(filename);
+                    link.click();
+                })
+                .catch(error => {
+                    console.error('文件下载失败', error);
+                });
             }
         },
         created() {
             this.getServerList();
 
             let _this = this;
-            this.socket = new WebSocket("ws://192.168.21.123:8080/webSocket");
+            this.socket = new WebSocket("ws://127.0.0.1:8080/webSocket");
             this.socket.onmessage = function (event) {
                 _this.log = event.data;
             };

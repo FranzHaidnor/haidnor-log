@@ -34,6 +34,7 @@ public class LogClient {
      */
     public void start() {
         NettyClientConfig config = new NettyClientConfig();
+        config.setFrameMaxLength(Integer.MAX_VALUE);
         RemotingClient client = new NettyRemotingClient(config);
 
         client.registerChannelEventListener(new DefaultChannelEventListener());

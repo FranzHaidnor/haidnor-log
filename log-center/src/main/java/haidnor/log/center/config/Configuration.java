@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 public class Configuration {
 
     @Value("${haidnor.log.center.port}")
-    private Integer port;
+    private int port;
+
+    @Value("${haidnor.log.center.logPushIntervalSecond}")
+    private long logPushInterval;
 
 }

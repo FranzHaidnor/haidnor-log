@@ -1,10 +1,11 @@
 server:
-  port: 8080  # 日志中心 web 服务端口号
+  port: 8080                        # 日志中心 web 服务端口号
 
 haidnor:
   log:
     center:
-      port: 8085  # 日志中心 netty 服务端口号
+      port: 8085                    # 日志中心 netty 服务端口号
+      logPushIntervalSecond: 3      # websocket 日志推送时间间隔(秒)
 
 spring:
   application:

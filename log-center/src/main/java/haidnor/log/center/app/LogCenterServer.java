@@ -32,6 +32,8 @@ public class LogCenterServer {
         nettyConfig.setTimeoutMillis(1000 * 30);
         nettyConfig.setListenPort(config.getPort());
         nettyConfig.setServerChannelMaxAllIdleTimeSeconds(60);
+        nettyConfig.setFrameMaxLength(Integer.MAX_VALUE);
+        nettyConfig.setTimeoutMillis(60 * 1000);
         server = new NettyRemotingServer(nettyConfig, LogCenterCommand.class);
 
         /* ------------------------------------------------------------------------------------------------------------ */
