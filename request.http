@@ -3,10 +3,19 @@ POST http://localhost:8080/test/getLog
 Content-Type: application/json
 
 {
-  "day": "2023-08-28",
+  "day": "2023-11-02",
   "ips": ["192.168.100.111","192.168.100.110"],
-  "fileName": "error-log.log",
-  "rows": 0,
+  "fileName": "info-log.log",
+  "rows": 50,
   "server": "VIP",
   "showIp": true
+}
+
+###
+POST http://localhost:8080/logClient/getLogFolder
+Content-Type: application/json
+
+{
+  "ips": ["192.168.100.1","192.168.100.111","192.168.100.110"],
+  "server": "VIP"
 }

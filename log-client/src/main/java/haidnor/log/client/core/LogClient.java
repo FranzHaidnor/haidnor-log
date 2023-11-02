@@ -2,6 +2,7 @@ package haidnor.log.client.core;
 
 import haidnor.log.client.config.Configuration;
 import haidnor.log.client.netty.listener.DefaultChannelEventListener;
+import haidnor.log.client.netty.processor.GetLogFolderProcessor;
 import haidnor.log.client.netty.processor.GetLogProcessor;
 import haidnor.log.common.command.LogCenterCommand;
 import haidnor.remoting.RemotingClient;
@@ -39,6 +40,7 @@ public class LogClient {
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         client.registerProcessor(LogCenterCommand.GET_LOG, new GetLogProcessor(), executorService);
+        client.registerProcessor(LogCenterCommand.GET_LOG_FOLDER, new GetLogFolderProcessor(), executorService);
 
         new Timer().schedule(new TimerTask() {
             @Override

@@ -15,13 +15,13 @@ public class DefaultChannelEventListener implements ChannelEventListener {
     private ServerNodeManager serverNodeManager;
 
     @Override
-    public void onChannelClose(String s, Channel channel) {
+    public void onOutBoundClose(String s, Channel channel) {
         channel.close();
         serverNodeManager.unregister(channel);
     }
 
     @Override
-    public void onChannelAllIdle(String remoteAddr, Channel channel) {
+    public void onInBoundAllIdle(String remoteAddr, Channel channel) {
         channel.close();
         serverNodeManager.unregister(channel);
     }

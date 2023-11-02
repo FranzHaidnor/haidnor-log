@@ -1,0 +1,1 @@
+java -jar D:\log\haidnor-log-client.jar
