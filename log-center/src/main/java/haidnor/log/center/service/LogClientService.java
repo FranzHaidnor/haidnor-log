@@ -1,6 +1,7 @@
 package haidnor.log.center.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.text.StrBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import haidnor.log.center.app.LogCenterServer;
@@ -130,8 +131,11 @@ public class LogClientService {
             futureList.add(future);
         }
 
+        TimeInterval timer = DateUtil.timer();
         // 合并多个节点的日志信息
         CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
+        timer.intervalSecond();
+        log.info("请求日志耗时 {} S", timer.intervalSecond());
 
         if (!errorContext.isEmpty()) {
             log.error("节点异常信息 {}", errorContext);
@@ -145,9 +149,13 @@ public class LogClientService {
                 logLineList.addAll(content);
             }
         }
-        List<String> log = LogUtil.margeLog(logLineList, param.isShowIp());
 
-        return String.join("\n", log);
+        timer.restart();
+        List<String> logList = LogUtil.margeLog(logLineList, param.isShowIp());
+        log.info("合并日志耗时 {} S", timer.intervalSecond());
+
+
+        return String.join("\n", logList);
     }
 
     /**
