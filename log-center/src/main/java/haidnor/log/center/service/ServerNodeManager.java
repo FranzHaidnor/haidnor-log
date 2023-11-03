@@ -19,13 +19,13 @@ public class ServerNodeManager {
     public synchronized void register(Channel channel) {
         String ip = getIPAddress(channel);
         channelMap.put(ip, channel);
-        log.debug("{}", channelMap);
+        log.info("{}", channelMap);
     }
 
     public synchronized void unregister(Channel channel) {
         String ip = getIPAddress(channel);
         channelMap.remove(ip);
-        log.debug("{}", channelMap);
+        log.info("{}", channelMap);
     }
 
     public Channel getChannel(String ip) {

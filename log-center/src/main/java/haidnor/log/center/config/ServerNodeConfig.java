@@ -2,7 +2,7 @@ package haidnor.log.center.config;
 
 import haidnor.log.center.LogCenterApplication;
 import haidnor.log.center.model.ServerNodeLog;
-import haidnor.remoting.util.Jackson;
+import haidnor.log.common.util.Jackson;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 

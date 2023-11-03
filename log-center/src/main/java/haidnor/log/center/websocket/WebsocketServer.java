@@ -4,7 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import haidnor.log.center.config.Configuration;
 import haidnor.log.center.model.param.GetLogRequestParam;
 import haidnor.log.center.service.LogClientService;
-import haidnor.log.center.util.Jackson;
+import haidnor.log.common.util.Jackson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

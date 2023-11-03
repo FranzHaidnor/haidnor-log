@@ -58,7 +58,7 @@ public class LogClientService {
                 RemotingCommand request = RemotingCommand.creatRequest(LogCenterCommand.GET_LOG_FOLDER, Jackson.toJsonBytes(getLogRequest));
                 // 同步请求
                 RemotingCommand response = nettyServer.invokeSync(channel, request);
-                if (response.getCode() == RemotingSysResponseCode.SYSTEM_ERROR) {
+                if (response.getResponseCode() == RemotingSysResponseCode.SYSTEM_ERROR) {
                     errorContext.add(ip + " " + response.getRemark());
                     return new HashSet<>();
                 }
@@ -112,7 +112,7 @@ public class LogClientService {
                 RemotingCommand request = RemotingCommand.creatRequest(LogCenterCommand.GET_LOG, Jackson.toJsonBytes(getLogRequest));
                 // 同步请求
                 RemotingCommand response = nettyServer.invokeSync(channel, request);
-                if (response.getCode() == RemotingSysResponseCode.SYSTEM_ERROR) {
+                if (response.getResponseCode() == RemotingSysResponseCode.SYSTEM_ERROR) {
                     errorContext.add(ip + " " + response.getRemark());
                     return null;
                 }
