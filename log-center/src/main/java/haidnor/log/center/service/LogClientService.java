@@ -3,6 +3,7 @@ package haidnor.log.center.service;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.ZipUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import haidnor.log.center.app.LogCenterServer;
 import haidnor.log.center.config.ServerNodeConfig;
@@ -92,6 +93,8 @@ public class LogClientService {
     public String getLog(GetLogRequestParam param) {
         List<String> errorContext = new CopyOnWriteArrayList<>();
 
+        // 并发请求多个服务器节点, 获取日志信息
+        TimeInterval timer = DateUtil.timer();
         List<CompletableFuture<List<LogLine>>> futureList = new ArrayList<>();
         for (String ip : param.getIps()) {
             // 发送并发请求
@@ -117,7 +120,8 @@ public class LogClientService {
                     errorContext.add(ip + " " + response.getRemark());
                     return null;
                 }
-                String content = new String(response.getBody());
+
+                String content = ZipUtil.unZlib(response.getBody(), "UTF-8");
 
                 List<LogLine> result = new ArrayList<>();
                 String[] logLines = content.split("\n");
@@ -131,16 +135,14 @@ public class LogClientService {
             futureList.add(future);
         }
 
-        TimeInterval timer = DateUtil.timer();
-        // 合并多个节点的日志信息
         CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
-        timer.intervalSecond();
-        log.info("请求日志耗时 {} S", timer.intervalSecond());
+        log.info("请求日志耗时 {} MS", timer.intervalMs());
 
         if (!errorContext.isEmpty()) {
             log.error("节点异常信息 {}", errorContext);
         }
 
+        timer.restart();
         // 所有的日志行信息
         List<LogLine> logLineList = new ArrayList<>();
         for (CompletableFuture<List<LogLine>> future : futureList) {
@@ -150,12 +152,10 @@ public class LogClientService {
             }
         }
 
-        timer.restart();
-        List<String> logList = LogUtil.margeLog(logLineList, param.isShowIp());
-        log.info("合并日志耗时 {} S", timer.intervalSecond());
+        String content = LogUtil.margeLog(logLineList, param.isShowIp());
+        log.info("合并日志耗时 {} MS", timer.intervalMs());
 
-
-        return String.join("\n", logList);
+        return content;
     }
 
     /**

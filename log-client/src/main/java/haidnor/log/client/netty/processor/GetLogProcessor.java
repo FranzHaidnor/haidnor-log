@@ -1,5 +1,6 @@
 package haidnor.log.client.netty.processor;
 
+import cn.hutool.core.util.ZipUtil;
 import haidnor.log.common.model.GetLogRequest;
 import haidnor.log.common.util.Jackson;
 import haidnor.log.common.util.LogUtil;
@@ -17,7 +18,8 @@ public class GetLogProcessor implements NettyRequestProcessor {
         GetLogRequest request = Jackson.toBean(remotingCommand.getBody(), GetLogRequest.class);
         try {
             String log = LogUtil.readLastRows(request.getPath() + "/" + request.getDay() + "/" + request.getFileName(), request.getRows());
-            return RemotingCommand.createResponse(RemotingSysResponseCode.SUCCESS, log.getBytes(StandardCharsets.UTF_8));
+            byte[] zlib = ZipUtil.zlib(log.getBytes(StandardCharsets.UTF_8), 9);
+            return RemotingCommand.createResponse(RemotingSysResponseCode.SUCCESS, zlib);
         } catch (Exception exception) {
             return RemotingCommand.createResponse(RemotingSysResponseCode.SYSTEM_ERROR, exception.getMessage());
         }

@@ -1,17 +1,17 @@
 package haidnor.log.common.util;
 
-import cn.hutool.core.date.DateUtil;
 import haidnor.log.common.model.LogLine;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * 日志合并工具
@@ -57,41 +57,49 @@ public class LogUtil {
     /**
      * 多个日志文件交织合并成一个日志文件
      */
-    public static List<String> margeLog(List<LogLine> lineList, boolean showIp) {
-        List<Log> logList = new ArrayList<>();
-        Log log = null;
+    public static String margeLog(List<LogLine> lineList, boolean showIp) {
+        List<Stack> logList = new ArrayList<>();
+        Stack stack = null;
+        long time = -1L;
         for (LogLine line : lineList) {
-            // 校验文本内容是否以指定时间格式开头 (2000-01-01 23:23:23.999)
-            if (line.getContent().length() >= 24 && Pattern.matches("^((([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))))|((([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00))-02-29))\\s+([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]).([0-9][0-9][0-9]).*$", line.getContent().substring(0, 24))) {
-                log = new Log(DateUtil.parse(line.getContent().substring(0, 24)).getTime());
+            // 解析文本开头的时间
+            String content = line.getContent();
+            if (content.length() >= 23) {
+                String dateCharSequence = content.substring(0, 23);
+                time = TimeUtil.parseTime(dateCharSequence);
+            }
+            if (time != -1L) {
+                stack = new Stack(time);
                 if (showIp) {
-                    log.addLine(line.getIp() + " | " + line.getContent());
+                    stack.addLine(line.getIp() + " | " + content);
                 } else {
-                    log.addLine(line.getContent());
+                    stack.addLine(content);
                 }
-
-                logList.add(log);
+                logList.add(stack);
             } else {
-                if (log != null) {
+                if (stack != null) {
                     if (showIp) {
-                        log.addLine(line.getIp() + " | " + line.getContent());
+                        stack.addLine(line.getIp() + " | " + content);
                     } else {
-                        log.addLine(line.getContent());
+                        stack.addLine(content);
                     }
                 }
             }
+            time = -1L;
         }
 
         // 日志信息对象按时间戳升序排序后归并为一个集合
-        return logList.stream().sorted(Comparator.comparing(Log::getTimestamp)).map(Log::getContent)
+        List<String> strings = logList.stream().sorted(Comparator.comparing(Stack::getTimestamp)).map(Stack::getContent)
                 .reduce((l1, l2) -> {
                     l1.addAll(l2);
                     return l1;
-                }).orElse(new ArrayList<>());
+                }).get();
+
+        return String.join("\n", strings);
     }
 
     @Getter
-    private static class Log {
+    private static class Stack {
         /**
          * 日志内容的时间戳
          */
@@ -101,12 +109,24 @@ public class LogUtil {
          */
         private final List<String> content = new LinkedList<>();
 
-        public Log(Long timestamp) {
+        public Stack(Long timestamp) {
             this.timestamp = timestamp;
         }
 
         public void addLine(String line) {
             this.content.add(line);
+        }
+    }
+
+    private static class TimeUtil {
+
+        private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        public static long parseTime(String dateCharSequence) {
+            try {
+                return simpleDateFormat.parse(dateCharSequence).getTime();
+            } catch (ParseException e) {
+                return -1;
+            }
         }
     }
 
