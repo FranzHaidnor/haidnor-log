@@ -91,6 +91,7 @@ public class LogClientService {
 
     @SneakyThrows
     public String getLog(GetLogRequestParam param) {
+        log.debug("开始请求--------------------------------------");
         List<String> errorContext = new CopyOnWriteArrayList<>();
 
         // 并发请求多个服务器节点, 获取日志信息
@@ -153,7 +154,7 @@ public class LogClientService {
         }
 
         String content = LogUtil.margeLog(logLineList, param.isShowIp());
-        log.info("合并日志耗时 {} MS", timer.intervalMs());
+        log.debug("合并日志耗时 {} MS", timer.intervalMs());
 
         return content;
     }

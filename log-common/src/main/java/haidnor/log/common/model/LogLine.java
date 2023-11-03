@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LogLine {
 
-    private String content;
+    public String content;
 
-    private String ip;
+    public String ip;
 
 }

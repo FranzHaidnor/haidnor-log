@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 日志合并工具
@@ -63,33 +64,39 @@ public class LogUtil {
         long time = -1L;
         for (LogLine line : lineList) {
             // 解析文本开头的时间
-            String content = line.getContent();
+            String content = line.content;
             if (content.length() >= 23) {
-                String dateCharSequence = content.substring(0, 23);
-                time = TimeUtil.parseTime(dateCharSequence);
+                time = TimeUtil.parseTime(content.substring(0, 23));
             }
             if (time != -1L) {
-                stack = new Stack(time);
-                if (showIp) {
-                    stack.addLine(line.getIp() + " | " + content);
-                } else {
-                    stack.addLine(content);
-                }
+                stack = new Stack(time, line.ip);
+                stack.addLine(content);
                 logList.add(stack);
             } else {
                 if (stack != null) {
-                    if (showIp) {
-                        stack.addLine(line.getIp() + " | " + content);
-                    } else {
-                        stack.addLine(content);
-                    }
+                    stack.addLine(content);
                 }
             }
             time = -1L;
         }
 
+        if (showIp) {
+            List<Stack> collect = logList.stream()
+                    .sorted(Comparator.comparing(Stack::getTimestamp))
+                    .collect(Collectors.toList());
+            StringBuilder sb = new StringBuilder();
+            for (Stack s : collect) {
+                for (String line : s.content) {
+                    sb.append(s.ipStr).append(" | ").append(line).append('\n');
+                }
+            }
+            return sb.toString();
+        }
+
         // 日志信息对象按时间戳升序排序后归并为一个集合
-        List<String> strings = logList.stream().sorted(Comparator.comparing(Stack::getTimestamp)).map(Stack::getContent)
+        List<String> strings = logList.stream()
+                .sorted(Comparator.comparing(Stack::getTimestamp))
+                .map(Stack::getContent)
                 .reduce((l1, l2) -> {
                     l1.addAll(l2);
                     return l1;
@@ -103,14 +110,17 @@ public class LogUtil {
         /**
          * 日志内容的时间戳
          */
-        private final Long timestamp;
+        public final Long timestamp;
+
+        public final String ipStr;
         /**
          * 日志文本内容
          */
-        private final List<String> content = new LinkedList<>();
+        public final List<String> content = new LinkedList<>();
 
-        public Stack(Long timestamp) {
+        public Stack(Long timestamp, String ipStr) {
             this.timestamp = timestamp;
+            this.ipStr = ipStr;
         }
 
         public void addLine(String line) {
@@ -121,6 +131,7 @@ public class LogUtil {
     private static class TimeUtil {
 
         private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
         public static long parseTime(String dateCharSequence) {
             try {
                 return simpleDateFormat.parse(dateCharSequence).getTime();
