@@ -3,6 +3,7 @@ package haidnor.log.center.controller;
 import haidnor.log.center.config.ServerNodeConfig;
 import haidnor.log.center.model.ServerNodeLog;
 import haidnor.log.center.service.ServerNodeConfigService;
+import haidnor.log.center.service.system.LoggerService;
 import haidnor.log.center.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,9 @@ public class SystemController {
 
     @Autowired
     private ServerNodeConfigService nodeConfigService;
+
+    @Autowired
+    private LoggerService loggerService;
 
     /**
      * 刷新节点配置
@@ -53,4 +57,16 @@ public class SystemController {
                 .collect(Collectors.toSet());
         return Result.success(collect);
     }
+
+    @PostMapping("/updateLogLevel")
+    public Result updateLogLevel(String packageName, String level) {
+        loggerService.updateLogLevel(packageName, level);
+        return Result.success();
+    }
+
+    @PostMapping("/getLogLevel")
+    public String getLogLevel(String packageName) {
+        return loggerService.getLogLevel(packageName);
+    }
+
 }

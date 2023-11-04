@@ -28,7 +28,7 @@ public class LogUtil {
      * @param rows     需要读取的行数. 0 则为全部内容
      * @author wang xiang
      */
-    public static String readLastRows(String filePath, long rows) {
+    public static byte[] readLastRows(String filePath, long rows) {
         rows = rows - 1;
         try (RandomAccessFile accessFile = new RandomAccessFile(filePath, "r")) {
             // 每次读取的字节数要和系统换行符大小一致
@@ -49,7 +49,7 @@ public class LogUtil {
             }
             byte[] tempBytes = new byte[(int) (accessFile.length() - accessFile.getFilePointer())];
             accessFile.readFully(tempBytes);
-            return new String(tempBytes, StandardCharsets.UTF_8);
+            return tempBytes;
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }

@@ -9,16 +9,14 @@ import haidnor.remoting.protocol.RemotingCommand;
 import haidnor.remoting.protocol.RemotingSysResponseCode;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.nio.charset.StandardCharsets;
-
 public class GetLogProcessor implements NettyRequestProcessor {
 
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand remotingCommand) {
         GetLogRequest request = Jackson.toBean(remotingCommand.getBody(), GetLogRequest.class);
         try {
-            String log = LogUtil.readLastRows(request.getPath() + "/" + request.getDay() + "/" + request.getFileName(), request.getRows());
-            byte[] zlib = ZipUtil.zlib(log.getBytes(StandardCharsets.UTF_8), 9);
+            byte[] bytes = LogUtil.readLastRows(request.getPath() + "/" + request.getDay() + "/" + request.getFileName(), request.getRows());
+            byte[] zlib = ZipUtil.zlib(bytes, 1);
             return RemotingCommand.createResponse(RemotingSysResponseCode.SUCCESS, zlib);
         } catch (Exception exception) {
             return RemotingCommand.createResponse(RemotingSysResponseCode.SYSTEM_ERROR, exception.getMessage());

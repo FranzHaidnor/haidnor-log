@@ -4,8 +4,9 @@ server:
 haidnor:
   log:
     center:
-      port: 8085                    # 日志中心 netty 服务端口号
-      logPushIntervalSecond: 3      # websocket 日志推送时间间隔(秒)
+      port: 8085                                        # 日志中心 netty 服务端口号
+      logPushIntervalSecond: 3                          #  websocket 日志推送时间间隔(秒)
+      logPrefixTimePattern: yyyy-MM-dd HH:mm:ss.SSS     # 日志时间前缀格式
 
 spring:
   application:

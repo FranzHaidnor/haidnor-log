@@ -14,4 +14,7 @@ public class Configuration {
     @Value("${haidnor.log.center.logPushIntervalSecond}")
     private long logPushInterval;
 
+    @Value("${haidnor.log.center.logPrefixTimePattern}")
+    private String logPrefixPattern;
+
 }

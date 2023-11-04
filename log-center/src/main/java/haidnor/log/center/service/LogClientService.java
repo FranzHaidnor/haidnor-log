@@ -91,7 +91,7 @@ public class LogClientService {
 
     @SneakyThrows
     public String getLog(GetLogRequestParam param) {
-        log.debug("开始请求--------------------------------------");
+        log.debug("haidnor.log.center.service.LogClientService.getLog");
         List<String> errorContext = new CopyOnWriteArrayList<>();
 
         // 并发请求多个服务器节点, 获取日志信息
@@ -137,7 +137,7 @@ public class LogClientService {
         }
 
         CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
-        log.info("请求日志耗时 {} MS", timer.intervalMs());
+        log.debug("请求日志耗时 {} MS", timer.intervalMs());
 
         if (!errorContext.isEmpty()) {
             log.error("节点异常信息 {}", errorContext);
