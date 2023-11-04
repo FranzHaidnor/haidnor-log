@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>haidnor-log</title>
-    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.common.dev.js"></script>
+    <script src="./js/vue.common.dev.js"></script>
+    <!--    <script src="./js/element-ui.js"></script>-->
+    <!--    <link rel="stylesheet" type="text/css" href="./css/element-ui.css">-->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.js"></script>
+    <script src="./js/axios.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/common.css">
 </head>
 
@@ -48,7 +50,7 @@
                 <el-option value="500" label="500"></el-option>
                 <el-option value="1000" label="1000"></el-option>
                 <el-option value="1500" label="1500"></el-option>
-                <el-option value="0" label="MAX"></el-option>
+                <el-option value="2000" label="2000"></el-option>
             </el-select>
 
             显示IP前缀
@@ -68,8 +70,8 @@
     </div>
 </div>
 <div>
-    <p>haidnor-log (分布式节点日志合并查看下载工具)</p>
-    <a href="https://github.com/FranzHaidnor/haidnor-log">https://github.com/FranzHaidnor/haidnor-log</a>
+    <p>分布式节点日志合并查看下载工具 <a href="https://github.com/FranzHaidnor/haidnor-log">https://github.com/FranzHaidnor/haidnor-log</a>
+    </p>
 </div>
 
 </body>
@@ -129,6 +131,19 @@
             },
             // 查看日志
             btn_cat() {
+                if (this.server == null) {
+                    alert("请选择服务");
+                    return;
+                }
+                if (this.ips == null) {
+                    alert("请选择节点IP");
+                    return;
+                }
+                if (this.day == null) {
+                    alert("请选择日期");
+                    return;
+                }
+
                 let data = {};
                 data.ips = this.ips;
                 data.server = this.server;
@@ -147,14 +162,32 @@
             },
             // 下载日志
             btn_download() {
+                if (this.server == null) {
+                    alert("请选择服务");
+                    return;
+                }
+                if (this.ips == null) {
+                    alert("请选择节点IP");
+                    return;
+                }
+                if (this.day == null) {
+                    alert("请选择日期");
+                    return;
+                }
+
                 let data = {};
                 data.ips = this.ips;
                 data.server = this.server;
                 data.day = this.day;
                 data.fileName = this.fileName;
-                data.rows = this.rows;
+                data.rows = 0;
                 data.showIp = this.showIp;
-
+                const loading = this.$loading({
+                    lock: true,
+                    text: 'Loading',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
                 axios.post("/logClient/download", data, {
                     headers: {
                         'Content-Type': 'application/json' // 设置请求头为JSON格式
@@ -170,14 +203,16 @@
                 })
                 .catch(error => {
                     console.error('文件下载失败', error);
+                }).finally(() => {
+                    loading.close();
                 });
-            }
+
         },
         created() {
             this.getServerList();
 
             let _this = this;
-            this.socket = new WebSocket("ws://127.0.0.1:8080/webSocket");
+            this.socket = new WebSocket("ws://" + window.location.host + "/webSocket");
             this.socket.onmessage = function (event) {
                 _this.log = event.data;
             };

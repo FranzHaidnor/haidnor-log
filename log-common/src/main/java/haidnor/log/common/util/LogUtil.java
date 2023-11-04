@@ -5,8 +5,6 @@ import lombok.Getter;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -135,7 +133,7 @@ public class LogUtil {
         public static long parseTime(String dateCharSequence) {
             try {
                 return simpleDateFormat.parse(dateCharSequence).getTime();
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 return -1;
             }
         }
