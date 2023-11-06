@@ -9,7 +9,7 @@ public class GetLogFolderRequestParam {
     /**
      * 需要查询的 ip 节点
      */
-    private HashSet<String> ips;
+    private HashSet<String> ip;
     /**
      * 服务名
      */

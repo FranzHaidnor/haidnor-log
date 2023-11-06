@@ -43,7 +43,7 @@ public class LogClientService {
     public List<String> getLogFolder(GetLogFolderRequestParam param) {
         List<String> errorContext = new CopyOnWriteArrayList<>();
         List<CompletableFuture<Set<String>>> futureList = new ArrayList<>();
-        for (String ip : param.getIps()) {
+        for (String ip : param.getIp()) {
             // 发送并发请求
             CompletableFuture<Set<String>> future = CompletableFuture.supplyAsync(() -> {
                 // 从连接器中获取客户端通道
@@ -97,7 +97,7 @@ public class LogClientService {
         // 并发请求多个服务器节点, 获取日志信息
         TimeInterval timer = DateUtil.timer();
         List<CompletableFuture<List<LogLine>>> futureList = new ArrayList<>();
-        for (String ip : param.getIps()) {
+        for (String ip : param.getIp()) {
             // 发送并发请求
             CompletableFuture<List<LogLine>> future = CompletableFuture.supplyAsync(() -> {
                 // 从连接器中获取客户端通道

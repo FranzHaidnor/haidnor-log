@@ -28,6 +28,10 @@ public class ServerNodeManager {
         log.debug("{}", channelMap);
     }
 
+    public boolean isRegister(String ip) {
+        return channelMap.containsKey(ip);
+    }
+
     public Channel getChannel(String ip) {
         return channelMap.get(ip);
     }

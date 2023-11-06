@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress JSVoidFunctionReturnValueUsed -->
 <html lang="en">
 
 <head>
@@ -26,9 +27,26 @@
             </el-select>
 
             节点IP
-            <el-select v-model="ips" multiple collapse-tags @change="getLogFolder" style="width: 250px">
-                <el-option v-for="ip in ipList" :value="ip">{{ ip }}</el-option>
+            <el-select v-model="ip" placeholder="请选择" multiple collapse-tags @change="getLogFolder"
+                       style="width: 250px">
+                <el-option
+                        v-for="item in ip_options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                        :disabled="item.disabled">
+                </el-option>
             </el-select>
+
+            <!--            <el-select v-model="ips" placeholder="请选择" multiple collapse-tags @change="getLogFolder" style="width: 250px">
+                            <el-option
+                                    v-for="item in ips"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                    :disabled="item.disabled">
+                            </el-option>
+                        </el-select>-->
 
             日期
             <el-select v-model="day" style="width: 130px">
@@ -81,7 +99,8 @@
         data: {
             server: null,
             serverList: [],
-            ips: null,
+            ip_options: null, // ip 下拉框中的选项
+            ip: null, // 选中的 id
             ipList: [],
             day: null,
             dayList: [],
@@ -100,8 +119,7 @@
             },
             // 选择服务后调用接口,获取所有的节点 IP
             getNodeIp() {
-                this.ip = null;
-                this.ipList = [];
+                this.ip_options = null;
                 this.day = null;
                 this.dayList = [];
 
@@ -109,8 +127,7 @@
                 params.append('serverName', this.server);
                 axios.post("/system/getNodeIp", params)
                     .then(res => {
-                        this.ipList = res.data.data;
-                        this.ips = res.data.data;
+                        this.ip_options = res.data.data;
 
                         // 渲染完 IP 节点下拉框后,请求目录信息
                         this.getLogFolder();
@@ -121,9 +138,9 @@
                 this.day = null;
                 this.dayList = [];
                 axios.post('/logClient/getLogFolder', {
-                    "ips": this.ips,
+                    "ip": this.ip,
                     "server": this.server
-                },).then(res => {
+                }).then(res => {
                     this.dayList = res.data.data;
                 })
             },
@@ -133,7 +150,7 @@
                     alert("请选择服务");
                     return;
                 }
-                if (this.ips == null) {
+                if (this.ip == null) {
                     alert("请选择节点IP");
                     return;
                 }
@@ -143,7 +160,7 @@
                 }
 
                 let data = {};
-                data.ips = this.ips;
+                data.ip = this.ip;
                 data.server = this.server;
                 data.day = this.day;
                 data.fileName = this.fileName;
@@ -164,7 +181,7 @@
                     alert("请选择服务");
                     return;
                 }
-                if (this.ips == null) {
+                if (this.ip == null) {
                     alert("请选择节点IP");
                     return;
                 }
@@ -174,7 +191,7 @@
                 }
 
                 let data = {};
-                data.ips = this.ips;
+                data.ip = this.ip;
                 data.server = this.server;
                 data.day = this.day;
                 data.fileName = this.fileName;
@@ -190,18 +207,16 @@
                     headers: {
                         'Content-Type': 'application/json' // 设置请求头为JSON格式
                     }
-                })
-                    .then(response => {
-                        const blob = new Blob([response.data]);
-                        const filename = response.headers['content-disposition'].split('=')[1]; // 从响应头中获取文件名
-                        const link = document.createElement('a');
-                        link.href = window.URL.createObjectURL(blob);
-                        link.download = decodeURIComponent(filename);
-                        link.click();
-                    })
-                    .catch(error => {
-                        console.error('文件下载失败', error);
-                    }).finally(() => {
+                }).then(response => {
+                    const blob = new Blob([response.data]);
+                    const filename = response.headers['content-disposition'].split('=')[1]; // 从响应头中获取文件名
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = decodeURIComponent(filename);
+                    link.click();
+                }).catch(error => {
+                    console.error('文件下载失败', error);
+                }).finally(() => {
                     loading.close();
                 });
 

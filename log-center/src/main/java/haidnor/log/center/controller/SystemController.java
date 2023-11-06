@@ -3,6 +3,7 @@ package haidnor.log.center.controller;
 import haidnor.log.center.config.ServerNodeConfig;
 import haidnor.log.center.model.ServerNodeLog;
 import haidnor.log.center.service.ServerNodeConfigService;
+import haidnor.log.center.service.ServerNodeManager;
 import haidnor.log.center.service.system.LoggerService;
 import haidnor.log.center.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,6 +24,9 @@ public class SystemController {
 
     @Autowired
     private LoggerService loggerService;
+
+    @Autowired
+    private ServerNodeManager serverNodeManager;
 
     /**
      * 刷新节点配置
@@ -55,7 +59,23 @@ public class SystemController {
                 .filter(serverNodeLog -> serverNodeLog.getServer().equals(serverName))
                 .map(ServerNodeLog::getIp)
                 .collect(Collectors.toSet());
-        return Result.success(collect);
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (String ip : collect) {
+            Map<String, Object> item = new HashMap<>();
+            list.add(item);
+            item.put("value", ip);
+            boolean register = serverNodeManager.isRegister(ip);
+            if (register) {
+                item.put("label", ip);
+                item.put("disabled", false);
+            } else {
+                item.put("label", ip + " (已离线)");
+                item.put("disabled", true);
+            }
+        }
+
+        return Result.success(list);
     }
 
     @PostMapping("/updateLogLevel")
