@@ -15,8 +15,9 @@ public class HeartbeatProcessor implements NettyRequestProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws Exception {
+    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) {
         serverNodeManager.register(ctx.channel());
-        return RemotingCommand.createResponse(RemotingSysResponseCode.SUCCESS, "OK");
+        return RemotingCommand.createResponse(RemotingSysResponseCode.SUCCESS);
     }
+
 }
