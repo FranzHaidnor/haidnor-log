@@ -16,13 +16,9 @@
 <body>
 <div id="root">
     <div>
-        <!--        <p>-->
-        <!--            当前监控 <span id="projectName"></span><br>-->
-        <!--            监控状态 <span id="monitorState"></span>-->
-        <!--        </p>-->
         <p>
             服务
-            <el-select v-model="server" @change="getNodeIp" style="width: 150px">
+            <el-select v-model="server" @change="getNodeIp" filterable style="width: 150px">
                 <el-option v-for="serverName in server_options" :value="serverName">{{ serverName }}</el-option>
             </el-select>
 
