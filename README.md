@@ -13,7 +13,9 @@
 
 # 启动
 # 日志中心
-java -jar haidnor-log-center.jar
+java -jar haidnor-log-center.jar -Xms256m Xmx256m --configPath=D:/project_haidnor/haidnor-log/server-config.json
+nohup java -jar haidnor-log-center.jar -Xms256m Xmx256m --configPath=D:/project_haidnor/haidnor-log/server-config.json > catalina.out  2>&1 &
 
 # 日志客户端
-java -jar haidnor-log-client.jar --centerAddress=192.168.21.123:8085
+java -jar haidnor-log-client.jar -Xms128m Xmx128m --centerAddress=192.168.21.123:8085
+nohup java -jar haidnor-log-client.jar -Xms128m Xmx128m --centerAddress=192.168.21.123:8085 > catalina.out  2>&1 &

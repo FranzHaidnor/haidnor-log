@@ -238,7 +238,12 @@
                 };
                 this.socket.onclose = function (event) {
                     _this.log = 'disconnect'
-                    alert('与服务器断开连接, 请刷新页面重新建立连接');
+                    alert('与服务器断开连接! 刷新页面重新建立连接');
+                    window.location.reload();
+                }
+                this.socket.onerror = function (event) {
+                    _this.log = 'error'
+                    alert('与服务器断开连接! 刷新页面重新建立连接');
                     window.location.reload();
                 }
             }

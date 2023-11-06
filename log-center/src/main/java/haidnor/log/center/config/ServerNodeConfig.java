@@ -1,6 +1,6 @@
 package haidnor.log.center.config;
 
-import haidnor.log.center.LogCenterApplication;
+import cn.hutool.core.io.FileUtil;
 import haidnor.log.center.model.ServerNodeLog;
 import haidnor.log.common.util.Jackson;
 import lombok.SneakyThrows;
@@ -22,8 +22,8 @@ public class ServerNodeConfig {
     public static String configJson;
 
     @SneakyThrows
-    public static void loadConfig() {
-        InputStream inputStream = LogCenterApplication.class.getResourceAsStream("/server-config.json");
+    public static void loadConfig(String configPath) {
+        InputStream inputStream = FileUtil.getInputStream(configPath);
         assert inputStream != null;
         String json = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         refreshConfig(json);

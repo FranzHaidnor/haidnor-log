@@ -7,6 +7,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 启动远程调用服务端. 连接注册注册中心注册此服务
  */
@@ -19,7 +21,14 @@ public class ApplicationStartup implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        ServerNodeConfig.loadConfig();
+        if (!args.containsOption("configPath")) {
+            throw new RuntimeException("缺少服务器节点配置文件路径");
+        }
+        List<String> values = args.getOptionValues("configPath");
+        String configPath = values.get(0);
+        log.info("config file path: {}", configPath);
+        ServerNodeConfig.loadConfig(configPath);
+
         server.start();
     }
 
