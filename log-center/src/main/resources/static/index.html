@@ -23,7 +23,7 @@
         <p>
             服务
             <el-select v-model="server" @change="getNodeIp" style="width: 150px">
-                <el-option v-for="serverName in serverList" :value="serverName">{{ serverName }}</el-option>
+                <el-option v-for="serverName in server_options" :value="serverName">{{ serverName }}</el-option>
             </el-select>
 
             节点IP
@@ -50,7 +50,7 @@
 
             日期
             <el-select v-model="day" style="width: 130px">
-                <el-option v-for="d in dayList" :value="d">{{ d }}</el-option>
+                <el-option v-for="d in day_options" :value="d">{{ d }}</el-option>
             </el-select>
 
             日志级别
@@ -97,14 +97,13 @@
     new Vue({
         el: '#root',
         data: {
+            server_options: null,
             server: null,
-            serverList: [],
             ip_options: null, // ip 下拉框中的选项
-            ip: null, // 选中的 id
-            ipList: [],
+            ip: null,         // 选中的 id
+            day_options: null,
             day: null,
-            dayList: [],
-            fileName: "error-log.log",
+            fileName: "error-log.log", // 默认查看的文件名
             rows: 500,
             showIp: null,
             socket: null,
@@ -114,34 +113,41 @@
             // 获取服务列表. 渲染下拉框服务信息
             getServerList() {
                 axios.post("/system/getServerList").then(res => {
-                    this.serverList = res.data.data;
+                    this.server_options = res.data.data;
                 })
             },
             // 选择服务后调用接口,获取所有的节点 IP
             getNodeIp() {
                 this.ip_options = null;
+                this.ip = null;
+                this.day_options = null;
                 this.day = null;
-                this.dayList = [];
 
                 const params = new URLSearchParams();
                 params.append('serverName', this.server);
                 axios.post("/system/getNodeIp", params)
                     .then(res => {
                         this.ip_options = res.data.data;
+                        // ip 默认全选
+                        this.ip = this.ip_options
+                            .filter(option => !option.disabled)
+                            .map(option => option.value);
 
                         // 渲染完 IP 节点下拉框后,请求目录信息
-                        this.getLogFolder();
+                        if (this.ip != null) {
+                            this.getLogFolder();
+                        }
                     })
             },
             // 选择节点 ip 后,获取日志目录信息
             getLogFolder() {
+                this.day_options = null;
                 this.day = null;
-                this.dayList = [];
                 axios.post('/logClient/getLogFolder', {
                     "ip": this.ip,
                     "server": this.server
                 }).then(res => {
-                    this.dayList = res.data.data;
+                    this.day_options = res.data.data;
                 })
             },
             // 查看日志
@@ -174,6 +180,7 @@
                 let data = {};
                 data.status = false;
                 this.socket.send(JSON.stringify(data));
+                this.log = '已停止查看日志';
             },
             // 下载日志
             btn_download() {
@@ -219,17 +226,25 @@
                 }).finally(() => {
                     loading.close();
                 });
+            },
+            // 初始化
+            initialization() {
+                this.getServerList();
 
+                let _this = this;
+                this.socket = new WebSocket("ws://" + window.location.host + "/webSocket");
+                this.socket.onmessage = function (event) {
+                    _this.log = event.data;
+                };
+                this.socket.onclose = function (event) {
+                    _this.log = 'disconnect'
+                    alert('与服务器断开连接, 请刷新页面重新建立连接');
+                    window.location.reload();
+                }
             }
         },
         created() {
-            this.getServerList();
-
-            let _this = this;
-            this.socket = new WebSocket("ws://" + window.location.host + "/webSocket");
-            this.socket.onmessage = function (event) {
-                _this.log = event.data;
-            };
+            this.initialization();
         }
 
     })

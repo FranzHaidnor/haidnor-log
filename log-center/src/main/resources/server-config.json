@@ -1,5 +1,10 @@
 [
   {
+    "ip": "192.168.21.123",
+    "server": "VIP",
+    "path": "D:/log/vip"
+  },
+  {
     "ip": "192.168.12.197",
     "server": "VIP",
     "path": "/usr/local/jxmLogs/vip/test"
