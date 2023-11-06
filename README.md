@@ -11,3 +11,9 @@
 # 工作原理
 ![](./doc/images/img01.png)
 
+# 启动
+# 日志中心
+java -jar haidnor-log-center.jar
+
+# 日志客户端
+java -jar haidnor-log-client.jar --centerAddress=192.168.21.123:8085

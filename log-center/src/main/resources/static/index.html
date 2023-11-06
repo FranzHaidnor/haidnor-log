@@ -5,12 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>haidnor-log</title>
-    <script src="./js/vue.common.dev.js"></script>
-    <!--    <script src="./js/element-ui.js"></script>-->
-    <!--    <link rel="stylesheet" type="text/css" href="./css/element-ui.css">-->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.common.dev.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="./js/axios.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/common.css">
 </head>
 
@@ -193,20 +191,21 @@
                         'Content-Type': 'application/json' // 设置请求头为JSON格式
                     }
                 })
-                .then(response => {
-                    const blob = new Blob([response.data]);
-                    const filename = response.headers['content-disposition'].split('=')[1]; // 从响应头中获取文件名
-                    const link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = decodeURIComponent(filename);
-                    link.click();
-                })
-                .catch(error => {
-                    console.error('文件下载失败', error);
-                }).finally(() => {
+                    .then(response => {
+                        const blob = new Blob([response.data]);
+                        const filename = response.headers['content-disposition'].split('=')[1]; // 从响应头中获取文件名
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = decodeURIComponent(filename);
+                        link.click();
+                    })
+                    .catch(error => {
+                        console.error('文件下载失败', error);
+                    }).finally(() => {
                     loading.close();
                 });
 
+            }
         },
         created() {
             this.getServerList();
@@ -217,6 +216,7 @@
                 _this.log = event.data;
             };
         }
+
     })
 </script>
 

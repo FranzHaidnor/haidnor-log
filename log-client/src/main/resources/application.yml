@@ -1,4 +1,3 @@
-haidnor:
-  log:
-    center:
-      address: 192.168.100.1:8085
+spring:
+  application:
+    name: haidnor-log-client

@@ -1,17 +1,27 @@
 [
   {
-    "ip": "192.168.100.1",
-    "server": "BUSINESS_VIP",
-    "path": "D:/log/vip"
+    "ip": "192.168.12.197",
+    "server": "VIP",
+    "path": "/usr/local/jxmLogs/vip/test"
   },
   {
-    "ip": "192.168.100.110",
-    "server": "BUSINESS_VIP",
-    "path": "D:/log/vip"
+    "ip": "192.168.12.197",
+    "server": "central",
+    "path": "/usr/local/jxmcloud/central"
   },
   {
-    "ip": "192.168.100.111",
-    "server": "BUSINESS_VIP",
-    "path": "D:/log/vip"
+    "ip": "192.168.12.197",
+    "server": "OA",
+    "path": "/usr/local/jxmLogs/oa/test"
+  },
+  {
+    "ip": "192.168.12.197",
+    "server": "workpoint",
+    "path": "/usr/local/jxmcloud/workpoint"
+  },
+  {
+    "ip": "192.168.12.197",
+    "server": "workpoint-backend",
+    "path": "/usr/local/jxmcloud/workpoint_backend"
   }
 ]

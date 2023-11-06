@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Data
 public class Configuration {
 
-    @Value("${haidnor.log.center.address}")
     private String address;
 
 }
