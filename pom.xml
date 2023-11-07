@@ -12,6 +12,7 @@
         <module>log-center</module>
         <module>log-client</module>
         <module>log-common</module>
+        <module>log-remoting</module>
     </modules>
 
     <properties>
