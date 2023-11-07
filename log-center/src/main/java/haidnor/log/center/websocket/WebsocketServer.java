@@ -1,5 +1,6 @@
 package haidnor.log.center.websocket;
 
+import cn.hutool.crypto.digest.MD5;
 import cn.hutool.extra.spring.SpringUtil;
 import haidnor.log.center.config.Configuration;
 import haidnor.log.center.model.param.GetLogRequestParam;
@@ -31,8 +32,12 @@ public class WebsocketServer {
 
     Session session;
 
+    private String lastMd5Hex = "";
+
     @OnOpen
     public void onOpen(Session session) throws IOException {
+        MD5 md5 = MD5.create();
+
         this.session = session;
         session.getBasicRemote().sendText("connection succeeded");
         new Thread(() -> {
@@ -46,7 +51,12 @@ public class WebsocketServer {
                     try {
                         if (this.session != null) {
                             String log = clientService.getLog(param);
-                            session.getBasicRemote().sendText(log);
+                            // 获取日志摘要
+                            String md5Hex = md5.digestHex(log);
+                            if (!md5Hex.equals(lastMd5Hex)) {
+                                this.lastMd5Hex = md5Hex;
+                                session.getBasicRemote().sendText(log);
+                            }
                         }
                     } catch (IOException e) {
                         log.error("", e);
