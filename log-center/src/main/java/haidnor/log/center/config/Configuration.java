@@ -11,6 +11,7 @@ public class Configuration {
     @Value("${haidnor.log.center.port}")
     private int port;
 
+    // 日志推送间隔
     @Value("${haidnor.log.center.logPushIntervalSecond}")
     private long logPushInterval;
 

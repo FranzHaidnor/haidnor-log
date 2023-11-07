@@ -58,7 +58,7 @@ public class LogClient {
             RemotingCommand request = RemotingCommand.creatRequest(LogCenterCommand.HEARTBEAT);
             client.invokeSync(serverConfig.getAddress(), request);
         } catch (Exception exception) {
-            log.error("Failed to connect to the log center! Retry after 5 seconds");
+            log.error("Failed to connect to the log center! Retry after 3 seconds");
         }
     }
 

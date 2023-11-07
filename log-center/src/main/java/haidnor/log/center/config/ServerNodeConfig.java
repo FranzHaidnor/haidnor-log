@@ -4,15 +4,21 @@ import cn.hutool.core.io.FileUtil;
 import haidnor.log.center.model.ServerNodeLog;
 import haidnor.log.common.util.Jackson;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ServerNodeConfig {
 
     public static List<ServerNodeLog> serverNodeLogs;
@@ -21,23 +27,45 @@ public class ServerNodeConfig {
 
     public static String configJson;
 
+    // 日志文件上一次的修改时间
+    private static long lastModified;
+
     @SneakyThrows
     public static void loadConfig(String configPath) {
-        InputStream inputStream = FileUtil.getInputStream(configPath);
-        assert inputStream != null;
-        String json = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        refreshConfig(json);
+        File file = FileUtil.file(configPath);
+        lastModified = file.lastModified();
+        refreshConfig(file);
+
+        new Timer(true).schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    File file = FileUtil.file(configPath);
+                    if (file.lastModified() != lastModified) {
+                        lastModified = file.lastModified();
+                        refreshConfig(file);
+                    }
+                } catch (Exception exception) {
+                    log.error("load log center config filed", exception);
+                }
+            }
+        }, 0, 10 * 1000);
     }
 
     /**
      * 刷新配置
-     *
-     * @param json 配置文件 JSON
      */
-    public static void refreshConfig(String json) {
-        ServerNodeConfig.serverNodeLogs = Jackson.toList(json, ServerNodeLog.class);
-        ServerNodeConfig.serverNodeMap = serverNodeLogs.stream().collect(Collectors.groupingBy(ServerNodeLog::getIp, Collectors.toMap(ServerNodeLog::getServer, Function.identity())));
-        ServerNodeConfig.configJson = json;
+    public static void refreshConfig(File file) {
+        try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+            String json = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+
+            ServerNodeConfig.serverNodeLogs = Jackson.toList(json, ServerNodeLog.class);
+            ServerNodeConfig.serverNodeMap = serverNodeLogs.stream().collect(Collectors.groupingBy(ServerNodeLog::getIp, Collectors.toMap(ServerNodeLog::getServer, Function.identity())));
+            ServerNodeConfig.configJson = json;
+            log.info("load log center config succeeded");
+        } catch (Exception exception) {
+            log.error("load log center config filed", exception);
+        }
     }
 
     public static ServerNodeLog getServerNodeLog(String ip, String serverName) {

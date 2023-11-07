@@ -2,7 +2,6 @@ package haidnor.log.center.controller;
 
 import haidnor.log.center.config.ServerNodeConfig;
 import haidnor.log.center.model.ServerNodeLog;
-import haidnor.log.center.service.ServerNodeConfigService;
 import haidnor.log.center.service.ServerNodeManager;
 import haidnor.log.center.service.system.LoggerService;
 import haidnor.log.center.util.Result;
@@ -20,22 +19,10 @@ import java.util.stream.Collectors;
 public class SystemController {
 
     @Autowired
-    private ServerNodeConfigService nodeConfigService;
-
-    @Autowired
     private LoggerService loggerService;
 
     @Autowired
     private ServerNodeManager serverNodeManager;
-
-    /**
-     * 刷新节点配置
-     */
-    @PostMapping("/refreshConfig")
-    public Result refreshConfig(String json) {
-        nodeConfigService.refreshConfig(json);
-        return Result.success();
-    }
 
     @PostMapping("/getConfig")
     public String getConfig() {
