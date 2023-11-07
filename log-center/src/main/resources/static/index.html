@@ -144,6 +144,9 @@
                     "server": this.server
                 }).then(res => {
                     this.day_options = res.data.data;
+                    if (this.day_options != null && this.day_options.length >= 1) {
+                        this.day = this.day_options[0];
+                    }
                 })
             },
             // 查看日志

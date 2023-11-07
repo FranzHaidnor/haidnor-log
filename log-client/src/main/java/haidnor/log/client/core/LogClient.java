@@ -43,12 +43,13 @@ public class LogClient {
         client.registerProcessor(LogCenterCommand.GET_LOG, new GetLogProcessor(), executorService);
         client.registerProcessor(LogCenterCommand.GET_LOG_FOLDER, new GetLogFolderProcessor(), executorService);
 
+        // 每 3 秒向日志中心发送一次心跳
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 sendHeartbeat(client);
             }
-        }, 0, 5 * 1000);
+        }, 0, 3 * 1000);
     }
 
     @SneakyThrows
