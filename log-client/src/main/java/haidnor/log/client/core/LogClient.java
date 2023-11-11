@@ -23,9 +23,6 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class LogClient {
 
-    /**
-     * RPC 服务端配置参数
-     */
     @Autowired
     private Configuration serverConfig;
 
