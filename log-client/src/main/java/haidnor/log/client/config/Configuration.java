@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 @Data
 public class Configuration {
 
+    /**
+     * 日志中心地址
+     */
     private String address;
 
 }
