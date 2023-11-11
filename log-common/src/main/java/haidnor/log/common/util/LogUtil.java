@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 
 /**
  * 日志合并工具
- *
- * @author wang xiang
  */
 public class LogUtil {
 
@@ -24,7 +22,6 @@ public class LogUtil {
      *
      * @param filePath 文件路径
      * @param rows     需要读取的行数. 0 则为全部内容
-     * @author wang xiang
      */
     public static byte[] readLastRows(String filePath, long rows) {
         rows = rows - 1;
