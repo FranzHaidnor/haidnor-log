@@ -13,4 +13,4 @@ if [[ -n $ID ]]; then
   done
 fi
 
-nohup java -jar ${jar_path}${jar_name} -Xms256m Xmx256m --configPath=${config_path} > center.out  2>&1 &
+nohup java -jar ${jar_path}${jar_name} -Xms2048m Xmx2048m --configPath=${config_path} > center.out  2>&1 &

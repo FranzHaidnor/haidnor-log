@@ -1,0 +1,1 @@
+java -jar D:\log\haidnor-log-client.jar -Xms2048m Xmx2048m --configPath=D:\server-config.json

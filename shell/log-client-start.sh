@@ -13,5 +13,4 @@ if [[ -n $ID ]]; then
   done
 fi
 
-nohup java -jar ${jar_path}${jar_name} -Xms128m Xmx128m --centerAddress=${centerAddress} > client.out  2>&1 &
-#java -jar ${jar_path}${jar_name} -Xms128m Xmx128m --centerAddress=${centerAddress}
+nohup java -jar ${jar_path}${jar_name} -Xms600m Xmx600m --centerAddress=${centerAddress} > client.out  2>&1 &
