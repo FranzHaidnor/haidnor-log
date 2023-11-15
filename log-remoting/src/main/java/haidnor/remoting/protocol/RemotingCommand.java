@@ -19,39 +19,39 @@ public class RemotingCommand {
     /**
      * 指令字符串哈希码
      */
-    private int commandHashCode;
+    public int commandHashCode;
 
     /**
      * 请求的唯一 id
      */
-    private int opaque = requestId.getAndIncrement();
+    public int opaque = requestId.getAndIncrement();
 
     /**
      * 响应码 {@link RemotingSysResponseCode}
      */
-    private int responseCode = -1;
+    public int responseCode = -1;
 
     /**
      * 类型 0:请求 1:响应 {@link RemotingCommandType}
      */
-    private int rpcType = 0;
+    public int rpcType = 0;
 
     /**
      * 是否为单向发送的类型 0:不是 1:是
      */
-    private int rpcOneway = 1;
+    public int rpcOneway = 1;
 
     /**
      * 备注文本内容
      */
-    private String remark;
+    public String remark;
 
     /**
      * 消息体
      */
-    private byte[] body;
+    public byte[] body;
 
-    private RemotingCommand() {
+    public RemotingCommand() {
     }
 
     public static <T extends Enum<T>> RemotingCommand creatRequest(T commandEnum) {

@@ -9,10 +9,12 @@ import haidnor.remoting.exception.RemotingConnectException;
 import haidnor.remoting.exception.RemotingSendRequestException;
 import haidnor.remoting.exception.RemotingTimeoutException;
 import haidnor.remoting.exception.RemotingTooMuchRequestException;
+import haidnor.remoting.protocol.RandomAccessFileResponseCommand;
 import haidnor.remoting.protocol.RemotingCommand;
 import haidnor.remoting.util.RemotingHelper;
 import haidnor.remoting.util.RemotingUtil;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -25,7 +27,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.concurrent.*;
@@ -153,6 +157,37 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                             }
                             pipeline.addLast(
                                     defaultEventExecutorGroup,
+                                    new ChannelOutboundHandlerAdapter() {
+                                        @Override
+                                        public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+                                            if (msg instanceof RandomAccessFileResponseCommand) {
+                                                RandomAccessFileResponseCommand response = (RandomAccessFileResponseCommand) msg;
+                                                ByteBuffer header = response.encode();
+                                                ctx.writeAndFlush(Unpooled.wrappedBuffer(header));
+
+                                                RandomAccessFile accessFile = response.getAccessFile();
+                                                int length = response.getLength();
+
+                                                // 最大数据包长度
+                                                int packageLength = 1024 * 1024 * 10;
+                                                while (length > 0) {
+                                                    byte[] bytes;
+                                                    if (length < packageLength) {
+                                                        bytes = new byte[length];
+                                                    } else {
+                                                        bytes = new byte[packageLength];
+                                                    }
+                                                    int read = accessFile.read(bytes);
+                                                    System.out.println(read);
+                                                    ctx.writeAndFlush(Unpooled.wrappedBuffer(bytes));
+                                                    length -= packageLength;
+                                                }
+                                                accessFile.close();
+                                            } else {
+                                                super.write(ctx, msg, promise);
+                                            }
+                                        }
+                                    },
                                     new NettyEncoder(),
                                     new NettyDecoder(nettyClientConfig.getFrameMaxLength()),
                                     new IdleStateHandler(nettyClientConfig.getClientChannelMaxReaderIdleTimeSeconds(), nettyClientConfig.getClientChannelMaxWriterIdleTimeSeconds(), nettyClientConfig.getClientChannelMaxAllIdleTimeSeconds()),

@@ -1,5 +1,6 @@
 package haidnor.remoting.core;
 
+import haidnor.remoting.protocol.RandomAccessFileResponseCommand;
 import haidnor.remoting.protocol.RemotingCommand;
 import haidnor.remoting.util.RemotingHelper;
 import haidnor.remoting.util.RemotingUtil;
@@ -18,8 +19,12 @@ public class NettyEncoder extends MessageToByteEncoder<RemotingCommand> {
     @Override
     public void encode(ChannelHandlerContext ctx, RemotingCommand remotingCommand, ByteBuf out) {
         try {
-            ByteBuffer header = remotingCommand.encode();
-            out.writeBytes(header);
+            if (!(remotingCommand instanceof RandomAccessFileResponseCommand)) {
+                ByteBuffer header = remotingCommand.encode();
+                out.writeBytes(header);
+            } else {
+                ctx.writeAndFlush(remotingCommand);
+            }
         } catch (Exception e) {
             log.error("encode exception, " + RemotingHelper.parseChannelRemoteAddr(ctx.channel()), e);
             if (remotingCommand != null) {

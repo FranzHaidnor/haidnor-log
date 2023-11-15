@@ -53,7 +53,7 @@ public class LogClient {
     private void sendHeartbeat(RemotingClient client) {
         try {
             RemotingCommand request = RemotingCommand.creatRequest(LogCenterCommand.HEARTBEAT);
-            client.invokeSync(serverConfig.getAddress(), request);
+            client.invokeSync(serverConfig.getAddress(), request, 10 * 1000);
         } catch (Exception exception) {
             log.error("Failed to connect to the log center! Retry after 3 seconds");
         }

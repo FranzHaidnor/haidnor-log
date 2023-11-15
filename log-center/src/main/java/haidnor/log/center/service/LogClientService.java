@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -116,13 +117,13 @@ public class LogClientService {
                 getLogRequest.setFileName(param.getFileName());
                 RemotingCommand request = RemotingCommand.creatRequest(LogCenterCommand.GET_LOG, Jackson.toJsonBytes(getLogRequest));
                 // 同步请求
-                RemotingCommand response = nettyServer.invokeSync(channel, request);
+                RemotingCommand response = nettyServer.invokeSync(channel, request,1000 * 30);
                 if (response.getResponseCode() == RemotingSysResponseCode.SYSTEM_ERROR) {
                     errorContext.add(ip + " " + response.getRemark());
                     return null;
                 }
 
-                String content = ZipUtil.unZlib(response.getBody(), "UTF-8");
+                String content = new String(response.getBody(), StandardCharsets.UTF_8);
 
                 List<LogLine> result = new ArrayList<>();
                 String[] logLines = content.split("\n");

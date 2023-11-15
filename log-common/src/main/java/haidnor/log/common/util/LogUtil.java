@@ -51,6 +51,43 @@ public class LogUtil {
     }
 
     /**
+     * 读取文本文件的倒数多少行内容
+     *
+     * @param filePath 文件路径
+     * @param rows     需要读取的行数. 0 则为全部内容
+     */
+    public static RandomAccessFile readLastRowsAndGetRandomAccessFile(String filePath, long rows) {
+        rows = rows - 1;
+        try {
+            RandomAccessFile accessFile = new RandomAccessFile(filePath, "r");
+            // 每次读取的字节数要和系统换行符大小一致
+            byte[] charBytes = new byte[1];
+            // 在获取到指定行数和读完文档之前,从文档末尾向前移动指针,遍历文档每一个字节
+            for (long pointer = accessFile.length(), lineSeparatorNum = 0; pointer >= 0 && lineSeparatorNum < rows + 1; ) {
+                // 移动指针
+                accessFile.seek(pointer--);
+                // 读取数据
+                int readLength = accessFile.read(charBytes);
+                if (readLength != -1 && charBytes[0] == 10) {
+                    lineSeparatorNum++;
+                }
+                // 扫描完依然没有找到足够的行数,将指针归0
+                if (pointer == -1 && lineSeparatorNum < rows + 1) {
+                    accessFile.seek(0);
+                }
+            }
+            return accessFile;
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+//    public static void main(String[] args) throws IOException {
+//        RandomAccessFile randomAccessFile = readLastRowsAndGetRandomAccessFile("D:\\log\\vip\\2023-11-02\\error-log.log", -1);
+//        System.out.println((randomAccessFile.length() - randomAccessFile.getFilePointer())/1024.0/1024.0);
+//    }
+
+    /**
      * 多个日志文件交织合并成一个日志文件
      */
     public static String margeLog(List<LogLine> lineList, boolean showIp) {
