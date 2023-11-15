@@ -169,7 +169,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                                                 int length = response.getLength();
 
                                                 // 最大数据包长度
-                                                int packageLength = 1024 * 1024 * 10;
+                                                int packageLength = 1024 * 1024 * 5;
                                                 while (length > 0) {
                                                     byte[] bytes;
                                                     if (length < packageLength) {
