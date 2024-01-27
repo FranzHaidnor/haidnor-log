@@ -5,6 +5,7 @@ import haidnor.log.client.netty.listener.DefaultChannelEventListener;
 import haidnor.log.client.netty.processor.GetLogFolderProcessor;
 import haidnor.log.client.netty.processor.GetLogProcessor;
 import haidnor.log.common.command.LogCenterCommand;
+import haidnor.log.common.util.Timer;
 import haidnor.remoting.RemotingClient;
 import haidnor.remoting.core.NettyClientConfig;
 import haidnor.remoting.core.NettyRemotingClient;
@@ -14,10 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -41,12 +41,7 @@ public class LogClient {
         client.registerProcessor(LogCenterCommand.GET_LOG_FOLDER, new GetLogFolderProcessor(), executorService);
 
         // 每 3 秒向日志中心发送一次心跳
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                sendHeartbeat(client);
-            }
-        }, 0, 3 * 1000);
+        sendHeartbeat(client);
     }
 
     @SneakyThrows
@@ -56,6 +51,8 @@ public class LogClient {
             client.invokeSync(serverConfig.getAddress(), request, 10 * 1000);
         } catch (Exception exception) {
             log.error("Failed to connect to the log center! Retry after 3 seconds");
+        } finally {
+            Timer.newTimeout(timeout -> sendHeartbeat(client), 3, TimeUnit.SECONDS);
         }
     }
 

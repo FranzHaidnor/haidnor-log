@@ -2,6 +2,7 @@ package haidnor.log.center.config;
 
 import cn.hutool.core.io.FileUtil;
 import haidnor.log.center.model.ServerNodeLog;
+import haidnor.log.common.util.Timer;
 import haidnor.log.common.util.Jackson;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,24 +32,22 @@ public class ServerNodeConfig {
 
     @SneakyThrows
     public static void loadConfig(String configPath) {
-        File file = FileUtil.file(configPath);
-        lastModified = file.lastModified();
-        refreshConfig(file);
-
-        new Timer(true).schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    File file = FileUtil.file(configPath);
-                    if (file.lastModified() != lastModified) {
-                        lastModified = file.lastModified();
-                        refreshConfig(file);
-                    }
-                } catch (Exception exception) {
-                    log.error("load log center config filed", exception);
-                }
+        try {
+            File file = FileUtil.file(configPath);
+            if (lastModified == 0L) {
+                lastModified = file.lastModified();
+                refreshConfig(file);
             }
-        }, 0, 10 * 1000);
+            // 判断文件修改时间是否发生变化
+            if (file.lastModified() != lastModified) {
+                lastModified = file.lastModified();
+                refreshConfig(file);
+            }
+        } catch (Exception exception) {
+            log.error("load log center config filed", exception);
+        } finally {
+            Timer.newTimeout(timeout -> loadConfig(configPath), 10, TimeUnit.SECONDS);
+        }
     }
 
     /**
